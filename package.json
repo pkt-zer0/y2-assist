@@ -6,6 +6,7 @@
   },
   "description": "",
   "main": "lib/main.js",
+  "type": "module",
   "scripts": {
     "start": "tsgo -p . && node .",
     "test": "tsgo -p . && node lib/test.js"
