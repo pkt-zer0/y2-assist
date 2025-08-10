@@ -2,7 +2,7 @@ import { bot1, MoveType, StrikeHeight } from './bots.js';
 
 //-- State --
 
-let rowIndex = 0;
+let handSize = 5;
 let choiceIndex = 0;
 
 //-- Utils --
@@ -54,6 +54,7 @@ function heightStyle(height: StrikeHeight) {
 }
 
 function renderContent() {
+    const rowIndex = Math.floor((handSize - 5) / 2);
     const row = bot1.normal[rowIndex];
     const choice = row.choices[choiceIndex];
 
@@ -87,7 +88,7 @@ function renderContent() {
 
     return `
         <div class="header">
-            [${row.minHand}-${row.maxHand}] / ${choiceIndex + 1}
+            [${handSize}] / ${choiceIndex + 1}
         </div>
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
             ${!damage ? '' : damage}
@@ -133,13 +134,13 @@ function main() {
             }
             render();
         } else if (e.key === "ArrowDown") {
-            if (rowIndex < 3) {
-                rowIndex += 1;
+            if (handSize < 12) {
+                handSize += 1;
             }
             render();
         } else if (e.key === "ArrowUp") {
-            if (rowIndex > 0) {
-                rowIndex -= 1;
+            if (handSize > 5) {
+                handSize -= 1;
             }
             render();
         }
