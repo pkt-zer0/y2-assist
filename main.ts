@@ -5,6 +5,18 @@ import { bot1, MoveType, StrikeHeight } from './bots.js';
 let rowIndex = 0;
 let choiceIndex = 0;
 
+//-- Utils --
+function style(props: any) {
+    const attributeValue = Object.entries(props)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('; ');
+    return `style="${attributeValue}"`;
+}
+
+function when(condition: boolean | number, template: string): string {
+    return condition ? template : '';
+}
+
 //-- Rendering --
 
 function typeColor(type: MoveType) {
@@ -39,13 +51,6 @@ function heightStyle(height: StrikeHeight) {
         case StrikeHeight.High: return { top: '55px' };
 
     }
-}
-
-function style(props: any) {
-    const attributeValue = Object.entries(props)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join('; ');
-    return `style="${attributeValue}"`;
 }
 
 function renderContent() {
@@ -91,22 +96,22 @@ function renderContent() {
                 <div class="blockGap" ${style({ top: gapPosition })}></div>
             `}
         </div>
-        ${!level ? '' : `
+        ${when(level, `
             <div class="level">${levelText}</div>
-        `}
-        ${!speed ? '' : `
-        <div class="speed" ${style(speedStyle)}>
-            ${speed}
+        `)}
+        ${when(speed, `
+            <div class="speed" ${style(speedStyle)}>
+                ${speed}
             </div>
-        `}
-        ${!blockDamage ? '' : `
+        `)}
+        ${when(blockDamage, `
         <div class="blockDamage">
             ${blockDamage}
         </div>
-        `}
-        ${!adjust ? '' : `
+        `)}
+        ${when(adjust, `
         <div class="adjust"> ${adjust}${always ? '!' : ''}</div>
-        `}
+        `)}
         <div class="flags">${flags.join('<br> ')}</div>
         <div class="height" ${style(heightStyle(height))}></div>
         `;
