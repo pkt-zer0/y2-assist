@@ -9,7 +9,8 @@
   "type": "module",
   "scripts": {
     "start": "tsgo -p . && node .",
-    "test": "tsgo -p . && node lib/test.js"
+    "test": "tsgo -p . && node lib/test.js",
+    "dist": "tsgo -p . && rollup lib/main.js -o dist/bundle.js -f iife && node builder.js"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@types/lodash": "^4.17.12",
     "@typescript/native-preview": "^7.0.0-dev.20250803.1",
+    "rollup": "^4.46.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4"
   }
