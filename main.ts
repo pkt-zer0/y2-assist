@@ -1,4 +1,4 @@
-import { bot1, MoveType, StrikeHeight } from './bots.js';
+import { bot1, MoveType, MoveChoice, StrikeHeight } from './bots.js';
 
 //-- State --
 
@@ -59,11 +59,7 @@ function heightStyle(height: StrikeHeight) {
     }
 }
 
-function renderContent() {
-    const rowIndex = Math.floor((handSize - 5) / 2);
-    const row = bot1.normal[rowIndex];
-    const choice = row.choices[choiceIndex];
-
+function renderMove(choice: MoveChoice) {
     const {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
         height, level,
@@ -93,9 +89,6 @@ function renderContent() {
     if (drawOnBlock) { flags.push(`DRAW`); }
 
     return `
-        <div class="header">
-            [${handSize}] / ${choiceIndex + 1}
-        </div>
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
             ${!damage ? '' : damage}
             ${!firstDamage ? '' : `(${firstDamage})`}
@@ -103,25 +96,25 @@ function renderContent() {
                 <div class="blockGap" ${style({ top: gapPosition })}></div>
             `}
         </div>
-        ${when(level, `
-            <div class="level">${levelText}</div>
-        `)}
-        ${when(speed, `
-            <div class="speed" ${style(speedStyle)}>
-                ${speed}
-            </div>
-        `)}
-        ${when(blockDamage, `
-        <div class="blockDamage">
-            ${blockDamage}
-        </div>
-        `)}
-        ${when(adjust, `
-        <div class="adjust"> ${adjust}${always ? '!' : ''}</div>
-        `)}
-        <div class="flags">${flags.join('<br> ')}</div>
+        <div class="flags"> ${flags.join('<br> ')} </div>
         <div class="height" ${style(heightStyle(height))}></div>
-        `;
+
+        ${when(level, `<div class="level"> ${levelText} </div>`)}
+        ${when(speed, `<div class="speed" ${style(speedStyle)}> ${speed} </div>`)}
+        ${when(blockDamage, `<div class="blockDamage"> ${blockDamage} </div>`)}
+        ${when(adjust, `<div class="adjust"> ${adjust}${always ? '!' : ''} </div>`)}
+    `;
+}
+
+function renderContent() {
+    const rowIndex = Math.floor((handSize - 5) / 2);
+    const row = bot1.normal[rowIndex];
+    const choice = row.choices[choiceIndex];
+
+    return `
+        <div class="header"> [${handSize}] / ${choiceIndex + 1} </div>
+        <div class="move"> ${renderMove(choice)} </div>
+    `;
 }
 
 function main() {

@@ -13,7 +13,7 @@ export enum StrikeHeight {
     Low, Mid, High
 }
 
-type MoveChoice = {
+export type MoveChoice = {
     type        : MoveType;
     damage      : number;
     blockDamage : number;
