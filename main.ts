@@ -6,7 +6,8 @@ let handSize = 5;
 let choiceIndex = 0;
 
 //-- Utils --
-function style(props: any) {
+
+function style(props: {}) {
     const attributeValue = Object.entries(props)
         .map(([key, value]) => `${key}: ${value}`)
         .join('; ');
@@ -15,6 +16,11 @@ function style(props: any) {
 
 function when(condition: boolean | number, template: string): string {
     return condition ? template : '';
+}
+function clamp(value: number, min: number, max: number) {
+    if (value < min) { return min; }
+    if (value > max) { return max; }
+    return value;
 }
 
 //-- Rendering --
@@ -122,26 +128,17 @@ function main() {
     const container = document.querySelector('#main')!;
     const rollButton = document.querySelector('#roll')!;
 
+    const KEY_HANDLERS =  {
+        "ArrowLeft" : () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); },
+        "ArrowRight": () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); },
+        "ArrowUp"   : () => { handSize    = clamp(handSize - 1, 5, 12); },
+        "ArrowDown" : () => { handSize    = clamp(handSize + 1, 5, 12); },
+        "r"         : () => { choiceIndex = Math.floor(Math.random() * 7); },
+    };
     document.addEventListener('keydown', (e) => {
-        if (e.key === "ArrowLeft") {
-            if (choiceIndex > 0) {
-                choiceIndex -= 1;
-            }
-            render();
-        } else if (e.key === "ArrowRight") {
-            if (choiceIndex < 7) {
-                choiceIndex += 1;
-            }
-            render();
-        } else if (e.key === "ArrowDown") {
-            if (handSize < 12) {
-                handSize += 1;
-            }
-            render();
-        } else if (e.key === "ArrowUp") {
-            if (handSize > 5) {
-                handSize -= 1;
-            }
+        const handler = KEY_HANDLERS[e.key];
+        if (handler) {
+            handler();
             render();
         }
     });
