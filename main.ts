@@ -1,4 +1,5 @@
-import { bot1, MoveType, MoveChoice, StrikeHeight } from './bots.js';
+import { bot1 } from './bots.js';
+import { MoveChoice, MoveType, StrikeHeight } from './types.js';
 
 //-- State --
 
