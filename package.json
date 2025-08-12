@@ -16,11 +16,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "canvas": "^3.0.1",
-    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@types/lodash": "^4.17.12",
     "@typescript/native-preview": "^7.0.0-dev.20250803.1",
     "rollup": "^4.46.2",
     "ts-node": "^10.9.2",
