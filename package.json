@@ -8,7 +8,7 @@
   "main": "lib/main.js",
   "type": "module",
   "scripts": {
-    "start": "tsgo -p . && node .",
+    "start": "tsgo -p .",
     "test": "tsgo -p . && node lib/test.js",
     "dist": "tsgo -p . && rollup lib/main.js -o docs/bundle.js -f iife && node builder.js"
   },

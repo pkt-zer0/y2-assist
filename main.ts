@@ -137,7 +137,7 @@ function main() {
             render();
         }
     });
-    rollButton.addEventListener("click", () => {
+    rollButton.addEventListener('click', () => {
         choiceIndex = Math.floor(Math.random() * 7);
         render();
     });

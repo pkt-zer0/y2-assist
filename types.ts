@@ -13,16 +13,13 @@ export enum StrikeHeight {
     Low, Mid, High
 }
 
-export interface MoveChoice {
+export interface Move {
     type        : MoveType;
     damage      : number;
     blockDamage : number;
-    firstDamage : number;
     speed       : number;
-    adjust      : number;
     level       : number; // Projectiles only
     height      : StrikeHeight;
-    description : string;
 
     // Various optional flags
     recur?      : boolean  // draw if not hit
@@ -32,6 +29,12 @@ export interface MoveChoice {
     lockdown?   : boolean; // prevent draw on block
     super?      : boolean;
     unsafe?     : boolean; // hit back if blocked
+}
+
+export interface MoveChoice extends Move {
+    description : string;
+    firstDamage : number;
+    adjust      : number;
     always?     : boolean; // adjust handsize even if whiffed
 }
 
