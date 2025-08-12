@@ -62,7 +62,7 @@ function heightStyle(height: StrikeHeight) {
 function renderMove(choice: MoveChoice) {
     const {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
-        height, level,
+        height, level, description,
         unsafe, knockdown, edge, recur, lockdown, drawOnBlock,
     } = choice;
 
@@ -96,6 +96,7 @@ function renderMove(choice: MoveChoice) {
                 <div class="blockGap" ${style({ top: gapPosition })}></div>
             `}
         </div>
+        <div class="description"> ${description} </div>
         <div class="flags"> ${flags.join('<br> ')} </div>
         <div class="height" ${style(heightStyle(height))}></div>
 

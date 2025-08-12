@@ -22,6 +22,7 @@ export type MoveChoice = {
     adjust      : number;
     level       : number; // Projectiles only
     height      : StrikeHeight;
+    description : string;
 
     // Various optional flags
     recur?      : boolean  // draw if not hit
@@ -34,6 +35,14 @@ export type MoveChoice = {
     always?     : boolean; // adjust handsize even if whiffed
 
 };
+
+/* Move description shorthand (case sensitive):
+  - A..J : normals
+  - t, l, h, b, d: throw, low/high/full block, dodge
+  - 1, 2 : super 1/2
+  - !, ? : ability, gem ability
+  - S, U : gem special, burst
+*/
 
 type HandSizeRange = {
     minHand: number;
@@ -60,6 +69,7 @@ const MOVE_DEFAULTS = {
     level: 0,
     blockDamage: 0,
     firstDamage: 0,
+    description: '',
     height: StrikeHeight.Mid,
 };
 
@@ -84,6 +94,7 @@ function mThrow(
         type: MoveType.Throw,
         damage,
         speed,
+        description: 't',
         knockdown: true,
         ...overrides,
     };
@@ -119,6 +130,7 @@ function mDodge(
     return {
         ...MOVE_DEFAULTS,
         type: MoveType.Dodge,
+        description: 'd',
         damage,
     };
 }
@@ -130,40 +142,40 @@ export const bot1: BotDefinition = {
                 BLOCK_HIGH,
                 BLOCK_LOW,
                 mThrow     ( 7, 5),
-                mStrike    (11, 7, { adjust: -1, firstDamage: 4, height: StrikeHeight.Low }),
-                mStrike    (12, 7, { adjust: -1, blockDamage: 1, firstDamage: 7, height: StrikeHeight.High }),
-                mProjectile( 7, 7, { blockDamage: 3 }),
-                mProjectile( 7, 7, { blockDamage: 3 }),
+                mStrike    (11, 7, { description: 'B → Z', adjust: -1, firstDamage: 4, height: StrikeHeight.Low }),
+                mStrike    (12, 7, { description: 'Z → C', adjust: -1, blockDamage: 1, firstDamage: 7, height: StrikeHeight.High }),
+                mProjectile( 7, 7, { description: 'X', blockDamage: 3 }),
+                mProjectile( 7, 7, { description: 'X', blockDamage: 3 }),
             ] },
         { minHand: 7, maxHand: 8, choices: [
                 BLOCK_LOW,
                 BLOCK_HIGH,
                 BLOCK_LOW,
                 mThrow     ( 7,  5, ),
-                mStrike    (12,  8, { adjust: -2, firstDamage: 3, height: StrikeHeight.Low }),
-                mStrike    (10, 11, { blockDamage: 2, unsafe: true }),
-                mProjectile( 7,  7, { blockDamage: 3 }),
-                mProjectile( 7,  7, { blockDamage: 3 }),
+                mStrike    (12,  8, { description: 'A → BC', adjust: -2, firstDamage: 3, height: StrikeHeight.Low }),
+                mStrike    (10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
+                mProjectile( 7,  7, { description: 'X', blockDamage: 3 }),
+                mProjectile( 7,  7, { description: 'X', blockDamage: 3 }),
             ] },
         { minHand: 9, maxHand: 10, choices: [
                 BLOCK_LOW,
                 BLOCK_HIGH,
                 BLOCK_LOW,
-                mThrow (18, 5, { adjust: -2, firstDamage: 7 }),
-                mThrow (18, 5, { adjust: -2, firstDamage: 7 }),
-                mStrike(20, 8, { adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                mStrike(20, 8, { adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                mDodge (7,     { adjust: -1 }),
+                mThrow (18, 5, { description: 't → CD',  adjust: -2, firstDamage: 7 }),
+                mThrow (18, 5, { description: 't → CD',  adjust: -2, firstDamage: 7 }),
+                mStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
+                mStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
+                mDodge (7,     { description: 'd → t',   adjust: -1 }),
             ] },
         { minHand: 11, maxHand: 12, choices: [
-                mDodge (30, { adjust: -2, always: true }),
-                mDodge (7,  { adjust: -1, knockdown: true }),
-                mThrow (20, 5, { adjust: -2, firstDamage: 7 }),
-                mThrow (20, 5, { adjust: -2, firstDamage: 7 }),
-                mStrike(20, 8, { adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                mStrike(10, 11, { blockDamage: 2, unsafe: true }),
-                mStrike(20, 15, { blockDamage: 1, adjust: -2, always: true, unsafe: true }),
-                mStrike(20, 15, { blockDamage: 1, adjust: -2, always: true, unsafe: true }),
+                mDodge (30,     { description: '2',       adjust: -2, always: true }),
+                mDodge (7,      { description: 'd → t',   adjust: -1, knockdown: true }),
+                mThrow (20, 5,  { description: 't → DE',  adjust: -2, firstDamage: 7 }),
+                mThrow (20, 5,  { description: 't → DE',  adjust: -2, firstDamage: 7 }),
+                mStrike(20, 8,  { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
+                mStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
+                mStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true }),
+                mStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true }),
             ] },
     ],
     knockdown: [
