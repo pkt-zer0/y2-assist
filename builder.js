@@ -5,7 +5,7 @@ import fs from 'node:fs';
 const FILE_OPTIONS = { encoding: 'utf8' };
 
 const original = fs.readFileSync('index.html', FILE_OPTIONS);
-const script   = fs.readFileSync('dist/bundle.js', FILE_OPTIONS);
+const script   = fs.readFileSync('docs/bundle.js', FILE_OPTIONS);
 
 // noinspection UnterminatedStatementJS
 const output = original
@@ -16,4 +16,5 @@ const output = original
         </script>
     `);
 
-fs.writeFileSync('dist/y2-assist.html', output, FILE_OPTIONS);
+fs.writeFileSync('docs/index.html', output, FILE_OPTIONS);
+fs.rmSync('docs/bundle.js');

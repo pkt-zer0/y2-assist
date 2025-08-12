@@ -10,7 +10,7 @@
   "scripts": {
     "start": "tsgo -p . && node .",
     "test": "tsgo -p . && node lib/test.js",
-    "dist": "tsgo -p . && rollup lib/main.js -o dist/bundle.js -f iife && node builder.js"
+    "dist": "tsgo -p . && rollup lib/main.js -o docs/bundle.js -f iife && node builder.js"
   },
   "keywords": [],
   "author": "",
