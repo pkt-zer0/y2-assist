@@ -1,5 +1,5 @@
 import { bot1 } from './bots.js';
-import { MoveChoice, MoveType, StrikeHeight } from './types.js';
+import { Choice, MoveType, StrikeHeight } from './types.js';
 
 //-- State --
 
@@ -60,7 +60,7 @@ function heightStyle(height: StrikeHeight) {
     }
 }
 
-function renderMove(choice: MoveChoice) {
+function renderMove(choice: Choice) {
     const {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
         height, level, description,

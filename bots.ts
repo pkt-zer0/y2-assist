@@ -1,7 +1,7 @@
 import {
     BLOCK_HIGH,
     BLOCK_LOW,
-    mDodge, MoveChoice,
+    mDodge, Choice,
     mProjectile,
     mStrike,
     mThrow,
@@ -15,14 +15,14 @@ interface HandSizeRange {
 
 type MoveChoiceRow = HandSizeRange & {
     /** Index corresponds to the dice roll needed */
-    choices: MoveChoice[];
+    choices: Choice[];
 }
 
-type HitbackChoice = HandSizeRange & MoveChoice;
+type HitbackChoice = HandSizeRange & Choice;
 
 interface BotDefinition {
     normal: MoveChoiceRow[];
-    knockdown: MoveChoice[];
+    knockdown: Choice[];
     hitback: HitbackChoice[];
 }
 

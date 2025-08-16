@@ -31,7 +31,7 @@ export interface Move {
     unsafe?     : boolean; // hit back if blocked
 }
 
-export interface MoveChoice extends Move {
+export interface Choice extends Move {
     description : string;
     firstDamage : number;
     adjust      : number;
@@ -59,13 +59,13 @@ export const MOVE_DEFAULTS = {
     height: StrikeHeight.Mid,
 };
 
-export const BLOCK_LOW: MoveChoice = {
+export const BLOCK_LOW: Choice = {
     ...MOVE_DEFAULTS,
     type: MoveType.BlockLow,
     drawOnBlock: true,
     recur: true,
 };
-export const BLOCK_HIGH: MoveChoice = {
+export const BLOCK_HIGH: Choice = {
     ...MOVE_DEFAULTS,
     type: MoveType.BlockHigh,
     drawOnBlock: true,
@@ -73,8 +73,8 @@ export const BLOCK_HIGH: MoveChoice = {
 };
 
 export function mThrow(
-    damage: number, speed: number, overrides: Partial<MoveChoice> = {}
-): MoveChoice {
+    damage: number, speed: number, overrides: Partial<Choice> = {}
+): Choice {
     return {
         ...MOVE_DEFAULTS,
         type: MoveType.Throw,
@@ -86,8 +86,8 @@ export function mThrow(
     };
 }
 export function mStrike(
-    damage: number, speed: number, overrides: Partial<MoveChoice> = {}
-): MoveChoice {
+    damage: number, speed: number, overrides: Partial<Choice> = {}
+): Choice {
     return {
         ...MOVE_DEFAULTS,
         type: MoveType.Strike,
@@ -97,8 +97,8 @@ export function mStrike(
     };
 }
 export function mProjectile(
-    damage: number, speed: number, overrides: Partial<MoveChoice> = {}
-): MoveChoice {
+    damage: number, speed: number, overrides: Partial<Choice> = {}
+): Choice {
     return {
         ...MOVE_DEFAULTS,
         type: MoveType.Projectile,
@@ -111,8 +111,8 @@ export function mProjectile(
     };
 }
 export function mDodge(
-    damage: number, overrides: Partial<MoveChoice> = {}
-): MoveChoice {
+    damage: number, overrides: Partial<Choice> = {}
+): Choice {
     return {
         ...MOVE_DEFAULTS,
         type: MoveType.Dodge,

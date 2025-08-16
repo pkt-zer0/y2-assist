@@ -1,11 +1,11 @@
-import { Move, MOVE_DEFAULTS, MoveChoice, MoveType } from './types.js';
+import { Move, MOVE_DEFAULTS, Choice, MoveType } from './types.js';
 
 interface NamedMove extends Move {
     name: string;
 }
 
 // Explicit definition, move list, or move list with overrides
-export type ChoiceInit = MoveChoice | string | [string, Partial<MoveChoice>];
+export type ChoiceInit = Choice | string | [string, Partial<Choice>];
 
 export type MoveSet = Record<string, NamedMove>;
 
@@ -71,7 +71,7 @@ export function moveset(def: Record<string, Move>): MoveSet {
     return namedMoves;
 }
 
-function choiceFromMoves(moves: NamedMove[], overrides: Partial<MoveChoice> = {}): MoveChoice {
+function choiceFromMoves(moves: NamedMove[], overrides: Partial<Choice> = {}): Choice {
     const first = moves[0];
     const last  = moves[moves.length - 1];
 
@@ -113,12 +113,12 @@ function choiceFromMoves(moves: NamedMove[], overrides: Partial<MoveChoice> = {}
     };
 }
 
-function convertShorthand(moveset: MoveSet, moveString: string, overrides: Partial<MoveChoice>) {
+function convertShorthand(moveset: MoveSet, moveString: string, overrides: Partial<Choice>) {
     const named = moveString.split('').map(name => moveset[name]);
     return choiceFromMoves(named, overrides);
 }
 
-export function parseMove(shorthand: ChoiceInit, moveset: MoveSet): MoveChoice {
+export function parseMove(shorthand: ChoiceInit, moveset: MoveSet): Choice {
     // Move list with override
     if (Array.isArray(shorthand)) {
         const [moveString, overrides] = shorthand;
