@@ -107,236 +107,280 @@
 
         <script type="application/javascript">
             (function () {
-    'use strict';
+  'use strict';
 
-    var MoveType;
-    (function (MoveType) {
-        MoveType[MoveType["Dodge"] = 0] = "Dodge";
-        MoveType[MoveType["Throw"] = 1] = "Throw";
-        // Attacks
-        MoveType[MoveType["Strike"] = 2] = "Strike";
-        MoveType[MoveType["Projectile"] = 3] = "Projectile";
-        // Blocks
-        MoveType[MoveType["BlockLow"] = 4] = "BlockLow";
-        MoveType[MoveType["BlockHigh"] = 5] = "BlockHigh";
-    })(MoveType || (MoveType = {}));
-    var StrikeHeight;
-    (function (StrikeHeight) {
-        StrikeHeight[StrikeHeight["Low"] = 0] = "Low";
-        StrikeHeight[StrikeHeight["Mid"] = 1] = "Mid";
-        StrikeHeight[StrikeHeight["High"] = 2] = "High";
-    })(StrikeHeight || (StrikeHeight = {}));
-    const MOVE_DEFAULTS = {
-        adjust: 0,
-        damage: 0,
-        speed: 0,
-        level: 0,
-        blockDamage: 0,
-        firstDamage: 0,
-        description: '',
-        height: StrikeHeight.Mid,
-    };
-    const BLOCK_LOW = {
-        ...MOVE_DEFAULTS,
-        type: MoveType.BlockLow,
-        drawOnBlock: true,
-        recur: true,
-    };
-    const BLOCK_HIGH = {
-        ...MOVE_DEFAULTS,
-        type: MoveType.BlockHigh,
-        drawOnBlock: true,
-        recur: true,
-    };
-    function mThrow(damage, speed, overrides = {}) {
-        return {
-            ...MOVE_DEFAULTS,
-            type: MoveType.Throw,
-            damage,
-            speed,
-            description: 't',
-            knockdown: true,
-            ...overrides,
-        };
-    }
-    function mStrike(damage, speed, overrides = {}) {
-        return {
-            ...MOVE_DEFAULTS,
-            type: MoveType.Strike,
-            damage,
-            speed,
-            ...overrides,
-        };
-    }
-    function mProjectile(damage, speed, overrides = {}) {
-        return {
-            ...MOVE_DEFAULTS,
-            type: MoveType.Projectile,
-            damage,
-            speed,
-            level: 1,
-            recur: true,
-            lockdown: true,
-            ...overrides,
-        };
-    }
-    function mDodge(damage, overrides = {}) {
-        return {
-            ...MOVE_DEFAULTS,
-            type: MoveType.Dodge,
-            description: 'd',
-            damage,
-        };
-    }
-    const bot1 = {
-        normal: [
-            { minHand: 5, maxHand: 6, choices: [
-                    BLOCK_LOW,
-                    BLOCK_HIGH,
-                    BLOCK_LOW,
-                    mThrow(7, 5),
-                    mStrike(11, 7, { description: 'B → Z', adjust: -1, firstDamage: 4, height: StrikeHeight.Low }),
-                    mStrike(12, 7, { description: 'Z → C', adjust: -1, blockDamage: 1, firstDamage: 7, height: StrikeHeight.High }),
-                    mProjectile(7, 7, { description: 'X', blockDamage: 3 }),
-                    mProjectile(7, 7, { description: 'X', blockDamage: 3 }),
-                ] },
-            { minHand: 7, maxHand: 8, choices: [
-                    BLOCK_LOW,
-                    BLOCK_HIGH,
-                    BLOCK_LOW,
-                    mThrow(7, 5),
-                    mStrike(12, 8, { description: 'A → BC', adjust: -2, firstDamage: 3, height: StrikeHeight.Low }),
-                    mStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
-                    mProjectile(7, 7, { description: 'X', blockDamage: 3 }),
-                    mProjectile(7, 7, { description: 'X', blockDamage: 3 }),
-                ] },
-            { minHand: 9, maxHand: 10, choices: [
-                    BLOCK_LOW,
-                    BLOCK_HIGH,
-                    BLOCK_LOW,
-                    mThrow(18, 5, { description: 't → CD', adjust: -2, firstDamage: 7 }),
-                    mThrow(18, 5, { description: 't → CD', adjust: -2, firstDamage: 7 }),
-                    mStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                    mStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                    mDodge(7, { }),
-                ] },
-            { minHand: 11, maxHand: 12, choices: [
-                    mDodge(30, { }),
-                    mDodge(7, { }),
-                    mThrow(20, 5, { description: 't → DE', adjust: -2, firstDamage: 7 }),
-                    mThrow(20, 5, { description: 't → DE', adjust: -2, firstDamage: 7 }),
-                    mStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                    mStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
-                    mStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true }),
-                    mStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true }),
-                ] },
-        ],
-        knockdown: [
-            BLOCK_HIGH,
-            mThrow(7, 5),
-            mStrike(10, 11, { blockDamage: 2, unsafe: true }),
-            mStrike(10, 11, { blockDamage: 2, unsafe: true }),
-            mStrike(10, 11, { blockDamage: 2, unsafe: true }),
-            mStrike(10, 11, { blockDamage: 2, unsafe: true }),
-            mStrike(10, 11, { blockDamage: 2, unsafe: true }),
-            mStrike(10, 11, { blockDamage: 2, unsafe: true }),
-        ],
-        hitback: [
-            { minHand: 5, maxHand: 6, ...mThrow(7, 0), adjust: -1 },
-            { minHand: 7, maxHand: 8, ...mStrike(10, 0), adjust: -1 },
-            { minHand: 9, maxHand: 10, ...mStrike(10, 0), adjust: -1 },
-            { minHand: 11, maxHand: 12, ...mStrike(20, 0), adjust: -2 },
-        ],
-    };
+  var MoveType;
+  (function (MoveType) {
+      MoveType[MoveType["Dodge"] = 0] = "Dodge";
+      MoveType[MoveType["Throw"] = 1] = "Throw";
+      // Attacks
+      MoveType[MoveType["Strike"] = 2] = "Strike";
+      MoveType[MoveType["Projectile"] = 3] = "Projectile";
+      // Blocks
+      MoveType[MoveType["BlockLow"] = 4] = "BlockLow";
+      MoveType[MoveType["BlockHigh"] = 5] = "BlockHigh";
+  })(MoveType || (MoveType = {}));
+  var StrikeHeight;
+  (function (StrikeHeight) {
+      StrikeHeight[StrikeHeight["Low"] = 0] = "Low";
+      StrikeHeight[StrikeHeight["Mid"] = 1] = "Mid";
+      StrikeHeight[StrikeHeight["High"] = 2] = "High";
+  })(StrikeHeight || (StrikeHeight = {}));
+  /* Move description shorthand (case sensitive):
+    - A..J : normals
+    - t, l, h, b, d: throw, low/high/full block, dodge
+    - 1, 2 : super 1/2
+    - !, ? : ability, gem ability
+    - S, U : gem special, burst
+  */
 
-    //-- State --
-    let handSize = 5;
-    let choiceIndex = 0;
-    //-- Utils --
-    function style(props) {
-        const attributeValue = Object.entries(props)
-            .map(([key, value]) => `${key}: ${value}`)
-            .join('; ');
-        return `style="${attributeValue}"`;
-    }
-    function when(condition, template) {
-        return condition ? template : '';
-    }
-    function clamp(value, min, max) {
-        if (value < min) {
-            return min;
-        }
-        if (value > max) {
-            return max;
-        }
-        return value;
-    }
-    //-- Rendering --
-    function typeColor(type) {
-        switch (type) {
-            case MoveType.Dodge: return '#080';
-            case MoveType.Throw: return '#000';
-            case MoveType.Strike:
-                return '#f33';
-            case MoveType.Projectile:
-                return '#f90';
-            case MoveType.BlockLow:
-            case MoveType.BlockHigh:
-                return '#00f';
-        }
-    }
-    function typeClass(type) {
-        switch (type) {
-            case MoveType.BlockLow:
-            case MoveType.BlockHigh:
-                return 'block';
-            case MoveType.Projectile:
-                return 'projectile';
-            default: return '';
-        }
-    }
-    function heightStyle(height) {
-        switch (height) {
-            case StrikeHeight.Low: return { top: '25px' };
-            case StrikeHeight.Mid: return { display: 'none' };
-            case StrikeHeight.High: return { top: '55px' };
-        }
-    }
-    function renderMove(choice) {
-        const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, unsafe, knockdown, edge, recur, lockdown, drawOnBlock, } = choice;
-        const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
-        const gapPosition = type === MoveType.BlockLow ? '50%' : '0';
-        const reversal = speed > 10;
-        const speedStyle = reversal ? {
-            background: '#333',
-            color: 'palegoldenrod',
-            'border-color': 'darkgoldenrod',
-        } : {
-            background: 'palegoldenrod',
-            color: 'black',
-            'border-color': 'black',
-        };
-        const levelText = Array(level).fill('I').join('');
-        const flags = [];
-        if (unsafe) {
-            flags.push(`/!\\`);
-        }
-        if (knockdown) {
-            flags.push(`KD`);
-        }
-        if (edge) {
-            flags.push(`(+)`);
-        }
-        if (recur) {
-            flags.push(`RECUR`);
-        }
-        if (lockdown) {
-            flags.push(`LOCK`);
-        }
-        if (drawOnBlock) {
-            flags.push(`DRAW`);
-        }
-        return `
+  //-- Move creation helpers --
+  const MOVE_DEFAULTS = {
+      damage: 0,
+      speed: 0,
+      level: 0,
+      blockDamage: 0,
+      height: StrikeHeight.Mid,
+  };
+  function mStrike(damage, speed, overrides = {}) {
+      return {
+          ...MOVE_DEFAULTS,
+          type: MoveType.Strike,
+          damage,
+          speed,
+          ...overrides,
+      };
+  }
+  function mThrow(damage, speed, overrides = {}) {
+      return {
+          ...MOVE_DEFAULTS,
+          type: MoveType.Throw,
+          damage,
+          speed,
+          knockdown: true,
+          ...overrides,
+      };
+  }
+  function mProjectile(damage, speed, overrides = {}) {
+      return {
+          ...MOVE_DEFAULTS,
+          type: MoveType.Projectile,
+          damage,
+          speed,
+          level: 1,
+          recur: true,
+          lockdown: true,
+          ...overrides,
+      };
+  }
+  function mDodge(overrides = {}) {
+      return {
+          ...MOVE_DEFAULTS,
+          type: MoveType.Dodge,
+          ...overrides,
+      };
+  }
+
+  const CHOICE_DEFAULTS = {
+      description: '',
+      firstDamage: 0,
+      adjust: 0,
+  };
+  const BLOCK_LOW = {
+      ...MOVE_DEFAULTS,
+      ...CHOICE_DEFAULTS,
+      type: MoveType.BlockLow,
+      drawOnBlock: true,
+      recur: true,
+  };
+  const BLOCK_HIGH = {
+      ...MOVE_DEFAULTS,
+      ...CHOICE_DEFAULTS,
+      type: MoveType.BlockHigh,
+      drawOnBlock: true,
+      recur: true,
+  };
+  function cThrow(damage, speed, overrides = {}) {
+      return {
+          ...mThrow(damage, speed),
+          ...CHOICE_DEFAULTS,
+          description: 't',
+          ...overrides,
+      };
+  }
+  function cStrike(damage, speed, overrides = {}) {
+      return {
+          ...mStrike(damage, speed),
+          ...CHOICE_DEFAULTS,
+          ...overrides,
+      };
+  }
+  function cProjectile(damage, speed, overrides = {}) {
+      return {
+          ...mProjectile(damage, speed),
+          ...CHOICE_DEFAULTS,
+          ...overrides,
+      };
+  }
+  function cDodge(damage, overrides = {}) {
+      return {
+          ...mDodge(),
+          ...CHOICE_DEFAULTS,
+          damage,
+          description: 'd',
+          ...overrides,
+      };
+  }
+
+  const bot1 = {
+      normal: [
+          { minHand: 5, maxHand: 6, choices: [
+                  BLOCK_LOW,
+                  BLOCK_HIGH,
+                  BLOCK_LOW,
+                  cThrow(7, 5),
+                  cStrike(11, 7, { description: 'B → Z', adjust: -1, firstDamage: 4, height: StrikeHeight.Low }),
+                  cStrike(12, 7, { description: 'Z → C', adjust: -1, blockDamage: 1, firstDamage: 7, height: StrikeHeight.High }),
+                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
+                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
+              ] },
+          { minHand: 7, maxHand: 8, choices: [
+                  BLOCK_LOW,
+                  BLOCK_HIGH,
+                  BLOCK_LOW,
+                  cThrow(7, 5),
+                  cStrike(12, 8, { description: 'A → BC', adjust: -2, firstDamage: 3, height: StrikeHeight.Low }),
+                  cStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
+                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
+                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
+              ] },
+          { minHand: 9, maxHand: 10, choices: [
+                  BLOCK_LOW,
+                  BLOCK_HIGH,
+                  BLOCK_LOW,
+                  cThrow(18, 5, { description: 't → CD', adjust: -2, firstDamage: 7, knockdown: false }),
+                  cThrow(18, 5, { description: 't → CD', adjust: -2, firstDamage: 7, knockdown: false }),
+                  cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
+                  cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
+                  cDodge(7, { description: 'd → t', adjust: -1, knockdown: true }),
+              ] },
+          { minHand: 11, maxHand: 12, choices: [
+                  cDodge(30, { description: '2', adjust: -2, always: true, super: true }),
+                  cDodge(7, { description: 'd → t', adjust: -1, knockdown: true }),
+                  cThrow(20, 5, { description: 't → DE', adjust: -2, firstDamage: 7, knockdown: false }),
+                  cThrow(20, 5, { description: 't → DE', adjust: -2, firstDamage: 7, knockdown: false }),
+                  cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
+                  cStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
+                  cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+                  cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+              ] },
+      ],
+      knockdown: [
+          BLOCK_HIGH,
+          cThrow(7, 5),
+          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+      ],
+      hitback: [
+          { minHand: 5, maxHand: 6, ...cThrow(7, 0), adjust: -1 },
+          { minHand: 7, maxHand: 8, ...cStrike(10, 0), adjust: -1 },
+          { minHand: 9, maxHand: 10, ...cStrike(10, 0), adjust: -1 },
+          { minHand: 11, maxHand: 12, ...cStrike(20, 0), adjust: -2 },
+      ],
+  };
+
+  //-- State --
+  let handSize = 5;
+  let choiceIndex = 0;
+  //-- Utils --
+  function style(props) {
+      const attributeValue = Object.entries(props)
+          .map(([key, value]) => `${key}: ${value}`)
+          .join('; ');
+      return `style="${attributeValue}"`;
+  }
+  function when(condition, template) {
+      return condition ? template : '';
+  }
+  function clamp(value, min, max) {
+      if (value < min) {
+          return min;
+      }
+      if (value > max) {
+          return max;
+      }
+      return value;
+  }
+  //-- Rendering --
+  function typeColor(type) {
+      switch (type) {
+          case MoveType.Dodge: return '#080';
+          case MoveType.Throw: return '#000';
+          case MoveType.Strike:
+              return '#f33';
+          case MoveType.Projectile:
+              return '#f90';
+          case MoveType.BlockLow:
+          case MoveType.BlockHigh:
+              return '#00f';
+      }
+  }
+  function typeClass(type) {
+      switch (type) {
+          case MoveType.BlockLow:
+          case MoveType.BlockHigh:
+              return 'block';
+          case MoveType.Projectile:
+              return 'projectile';
+          default: return '';
+      }
+  }
+  function heightStyle(height) {
+      switch (height) {
+          case StrikeHeight.Low: return { top: '25px' };
+          case StrikeHeight.Mid: return { display: 'none' };
+          case StrikeHeight.High: return { top: '55px' };
+      }
+  }
+  function renderMove(choice) {
+      const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, unsafe, knockdown, edge, recur, lockdown, drawOnBlock, } = choice;
+      const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
+      const gapPosition = type === MoveType.BlockLow ? '50%' : '0';
+      const reversal = speed > 10;
+      const speedStyle = reversal ? {
+          background: '#333',
+          color: 'palegoldenrod',
+          'border-color': 'darkgoldenrod',
+      } : {
+          background: 'palegoldenrod',
+          color: 'black',
+          'border-color': 'black',
+      };
+      const levelText = Array(level).fill('I').join('');
+      const flags = [];
+      if (unsafe) {
+          flags.push(`/!\\`);
+      }
+      if (knockdown) {
+          flags.push(`KD`);
+      }
+      if (edge) {
+          flags.push(`(+)`);
+      }
+      if (recur) {
+          flags.push(`RECUR`);
+      }
+      if (lockdown) {
+          flags.push(`LOCK`);
+      }
+      if (drawOnBlock) {
+          flags.push(`DRAW`);
+      }
+      return `
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
             ${!damage ? '' : damage}
             ${!firstDamage ? '' : `(${firstDamage})`}
@@ -353,43 +397,43 @@
         ${when(blockDamage, `<div class="blockDamage"> ${blockDamage} </div>`)}
         ${when(adjust, `<div class="adjust"> ${adjust}${always ? '!' : ''} </div>`)}
     `;
-    }
-    function renderContent() {
-        const rowIndex = Math.floor((handSize - 5) / 2);
-        const row = bot1.normal[rowIndex];
-        const choice = row.choices[choiceIndex];
-        return `
+  }
+  function renderContent() {
+      const rowIndex = Math.floor((handSize - 5) / 2);
+      const row = bot1.normal[rowIndex];
+      const choice = row.choices[choiceIndex];
+      return `
         <div class="header"> [${handSize}] / ${choiceIndex + 1} </div>
         <div class="move"> ${renderMove(choice)} </div>
     `;
-    }
-    function main() {
-        const container = document.querySelector('#main');
-        const rollButton = document.querySelector('#roll');
-        const KEY_HANDLERS = {
-            "ArrowLeft": () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); },
-            "ArrowRight": () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); },
-            "ArrowUp": () => { handSize = clamp(handSize - 1, 5, 12); },
-            "ArrowDown": () => { handSize = clamp(handSize + 1, 5, 12); },
-            "r": () => { choiceIndex = Math.floor(Math.random() * 7); },
-        };
-        document.addEventListener('keydown', (e) => {
-            const handler = KEY_HANDLERS[e.key];
-            if (handler) {
-                handler();
-                render();
-            }
-        });
-        rollButton.addEventListener("click", () => {
-            choiceIndex = Math.floor(Math.random() * 7);
-            render();
-        });
-        function render() {
-            container.innerHTML = renderContent();
-        }
-        render();
-    }
-    document.addEventListener('DOMContentLoaded', main);
+  }
+  function main() {
+      const container = document.querySelector('#main');
+      const rollButton = document.querySelector('#roll');
+      const KEY_HANDLERS = {
+          "ArrowLeft": () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); },
+          "ArrowRight": () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); },
+          "ArrowUp": () => { handSize = clamp(handSize - 1, 5, 12); },
+          "ArrowDown": () => { handSize = clamp(handSize + 1, 5, 12); },
+          "r": () => { choiceIndex = Math.floor(Math.random() * 7); },
+      };
+      document.addEventListener('keydown', (e) => {
+          const handler = KEY_HANDLERS[e.key];
+          if (handler) {
+              handler();
+              render();
+          }
+      });
+      rollButton.addEventListener('click', () => {
+          choiceIndex = Math.floor(Math.random() * 7);
+          render();
+      });
+      function render() {
+          container.innerHTML = renderContent();
+      }
+      render();
+  }
+  document.addEventListener('DOMContentLoaded', main);
 
 })();
 
