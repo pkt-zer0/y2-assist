@@ -72,7 +72,7 @@ export const BLOCK_HIGH: Choice = {
     recur: true,
 };
 
-export function mThrow(
+export function cThrow(
     damage: number, speed: number, overrides: Partial<Choice> = {}
 ): Choice {
     return {
@@ -85,7 +85,7 @@ export function mThrow(
         ...overrides,
     };
 }
-export function mStrike(
+export function cStrike(
     damage: number, speed: number, overrides: Partial<Choice> = {}
 ): Choice {
     return {
@@ -96,7 +96,7 @@ export function mStrike(
         ...overrides,
     };
 }
-export function mProjectile(
+export function cProjectile(
     damage: number, speed: number, overrides: Partial<Choice> = {}
 ): Choice {
     return {
@@ -110,7 +110,7 @@ export function mProjectile(
         ...overrides,
     };
 }
-export function mDodge(
+export function cDodge(
     damage: number, overrides: Partial<Choice> = {}
 ): Choice {
     return {
