@@ -1,15 +1,16 @@
 import { bot1 } from './bots.js';
+import { BLOCK_LOW, BLOCK_HIGH } from './choices.js';
+import { StrikeHeight } from './types.js';
 import {
     ChoiceInit,
     mDodge,
-    mStrike,
     MoveSet,
+    moveset,
     mProjectile,
+    mStrike,
     mThrow,
     parseMove,
-    moveset,
 } from './moves.js';
-import { BLOCK_HIGH, BLOCK_LOW, StrikeHeight } from './types.js';
 
 //-- Utils --
 

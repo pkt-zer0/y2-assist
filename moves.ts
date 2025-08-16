@@ -1,4 +1,4 @@
-import { Move, MOVE_DEFAULTS, Choice, MoveType } from './types.js';
+import { Move, Choice, MoveType, StrikeHeight } from './types.js';
 
 interface NamedMove extends Move {
     name: string;
@@ -14,6 +14,14 @@ function sumBy<T>(items: T[], selector: (obj: T) => number) {
 }
 
 //-- Move creation helpers --
+
+export const MOVE_DEFAULTS = {
+    damage: 0,
+    speed: 0,
+    level: 0,
+    blockDamage: 0,
+    height: StrikeHeight.Mid,
+};
 
 export function mStrike(
     damage: number, speed: number, overrides: Partial<Move> = {}

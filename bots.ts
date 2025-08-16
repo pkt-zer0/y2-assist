@@ -1,13 +1,15 @@
 import {
+    Choice,
+    StrikeHeight,
+} from './types.js';
+import {
     BLOCK_HIGH,
     BLOCK_LOW,
     cDodge,
-    Choice,
     cProjectile,
     cStrike,
     cThrow,
-    StrikeHeight,
-} from './types.js';
+} from './choices.js';
 
 interface HandSizeRange {
     minHand: number;
