@@ -3,7 +3,7 @@ import { Choice, MoveType, StrikeHeight } from './types.js';
 
 //-- State --
 
-let handSize = 5;
+let handSize = 9;
 let choiceIndex = 0;
 
 //-- Actions --
