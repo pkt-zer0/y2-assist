@@ -114,6 +114,9 @@ function renderContent() {
     const choice = row.choices[choiceIndex];
 
     return `
+        <div id="controls">
+            <button data-action="roll">ROLL</button>
+        </div>
         <div class="header"> [${handSize}] / ${choiceIndex + 1} </div>
         <div class="move"> ${renderMove(choice)} </div>
     `;
@@ -121,7 +124,6 @@ function renderContent() {
 
 function main() {
     const container = document.querySelector('#main')!;
-    const rollButton = document.querySelector('#roll')!;
 
     const KEY_HANDLERS =  {
         "ArrowLeft" : () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); },
@@ -137,9 +139,14 @@ function main() {
             render();
         }
     });
-    rollButton.addEventListener('click', () => {
-        choiceIndex = Math.floor(Math.random() * 7);
-        render();
+    document.documentElement.addEventListener('click', e => {
+        const target = e.target;
+        if (target instanceof HTMLButtonElement) {
+            if (target.dataset.action === 'roll') {
+                choiceIndex = Math.floor(Math.random() * 7);
+                render();
+            }
+        }
     });
     
     function render() {
