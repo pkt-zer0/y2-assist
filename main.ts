@@ -53,9 +53,9 @@ function typeClass(type: MoveType) {
 
 function heightStyle(height: StrikeHeight) {
     switch (height) {
-        case StrikeHeight.Low : return { top: '25px' };
+        case StrikeHeight.Low : return { top: '25%' };
         case StrikeHeight.Mid : return { display: 'none' };
-        case StrikeHeight.High: return { top: '55px' };
+        case StrikeHeight.High: return { top: '55%' };
 
     }
 }
@@ -114,7 +114,7 @@ function renderContent() {
     const choice = row.choices[choiceIndex];
 
     return `
-        <div id="controls">
+        <div class="controls">
             <button data-action="roll">ROLL</button>
         </div>
         <div class="header"> [${handSize}] / ${choiceIndex + 1} </div>
