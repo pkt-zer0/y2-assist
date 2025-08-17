@@ -6,6 +6,14 @@ import { Choice, MoveType, StrikeHeight } from './types.js';
 let handSize = 5;
 let choiceIndex = 0;
 
+//-- Actions --
+
+const choiceLeft   = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
+const choiceRight  = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
+const choiceRandom = () => { choiceIndex = Math.floor(Math.random() * 8); };
+const handsizeDown = () => { handSize    = clamp(handSize - 1, 5, 12); };
+const handsizeUp   = () => { handSize    = clamp(handSize + 1, 5, 12); };
+
 //-- Utils --
 
 function style(props: {}) {
@@ -115,7 +123,13 @@ function renderContent() {
 
     return `
         <div class="controls">
-            <button data-action="roll">ROLL</button>
+            <button data-action="down"> - </button>
+            <button data-action="up"> + </button>
+            
+            <button class="large" data-action="roll"> ROLL </button>
+            
+            <button data-action="left"> &lt; </button>
+            <button data-action="right"> &gt; </button>
         </div>
         <div class="header"> [${handSize}] / ${choiceIndex + 1} </div>
         <div class="move"> ${renderMove(choice)} </div>
@@ -125,12 +139,12 @@ function renderContent() {
 function main() {
     const container = document.querySelector('#main')!;
 
-    const KEY_HANDLERS =  {
-        "ArrowLeft" : () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); },
-        "ArrowRight": () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); },
-        "ArrowUp"   : () => { handSize    = clamp(handSize - 1, 5, 12); },
-        "ArrowDown" : () => { handSize    = clamp(handSize + 1, 5, 12); },
-        "r"         : () => { choiceIndex = Math.floor(Math.random() * 7); },
+    const KEY_HANDLERS = {
+        "ArrowLeft" : choiceLeft,
+        "ArrowRight": choiceRight,
+        "ArrowUp"   : handsizeDown,
+        "ArrowDown" : handsizeUp,
+        "r"         : choiceRandom,
     };
     document.addEventListener('keydown', (e) => {
         const handler = KEY_HANDLERS[e.key];
@@ -139,11 +153,20 @@ function main() {
             render();
         }
     });
+
+    const ACTION_HANDLERS = {
+        roll : choiceRandom,
+        left : choiceLeft,
+        right: choiceRight,
+        up   : handsizeUp,
+        down : handsizeDown,
+    };
     document.documentElement.addEventListener('click', e => {
         const target = e.target;
         if (target instanceof HTMLButtonElement) {
-            if (target.dataset.action === 'roll') {
-                choiceIndex = Math.floor(Math.random() * 7);
+            const handler = ACTION_HANDLERS['' + target.dataset.action];
+            if (handler) {
+                handler();
                 render();
             }
         }

@@ -2,18 +2,46 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>Y2 assistant</title>
     <!--suppress CssUnusedSymbol -->
     <style>
+        html {
+            font-size: 4vw;
+        }
         html, body {
             padding: 0;
             margin: 0;
+            height: 100%;
+        }
+        #main {
+            height: 100%;
         }
         * {
             box-sizing: border-box;
+            touch-action: manipulation;
+        }
+        .controls {
+            display: flex;
+            width: 100%;
+            height: 10%;
+            min-height: 2rem;
+            justify-content: space-between;
+        }
+        button {
+            font-size: 1rem;
+            flex-grow: 1;
+            margin: 0 0.5rem;
+        }
+        button.large {
+            flex-grow: 2;
         }
         .move {
             position: relative;
+            width: 75vw;
+            height: 75vw;
+            font-size: 3rem;
+            margin: auto;
         }
         .damage, .blockDamage, .speed, .adjust, .flags, .height, .level {
             display: flex;
@@ -23,14 +51,14 @@
         }
         .description {
             position: absolute;
-            left: 5px;
-            font-size: 0.8rem;
+            left: 5%;
+            font-size: 0.8em;
         }
         .damage {
-            width: 50px;
-            height: 50px;
-            left: 20px;
-            top: 20px;
+            width: 50%;
+            height: 50%;
+            left: 20%;
+            top: 20%;
             color: white;
             border-radius: 50%;
             overflow: hidden;
@@ -43,10 +71,10 @@
         }
         .blockDamage {
             background: lightblue;
-            width : 20px;
-            height: 20px;
-            left  : 58px;
-            top   : 58px;
+            width : 20%;
+            height: 20%;
+            left  : 58%;
+            top   : 58%;
             text-align: center;
         }
         .blockGap {
@@ -59,50 +87,47 @@
             background: palegoldenrod;
             color: grey;
             border-color: black;
-            border-width: 1px;
+            border-width: 0.0625rem;
             border-style: solid;
-            top: 10px;
-            left: 60px;
-            width: 20px;
-            height: 20px;
+            top: 10%;
+            left: 60%;
+            width: 20%;
+            height: 20%;
             border-radius: 50%;
         }
         .adjust {
             background: sandybrown;
-            width: 20px;
-            height: 30px;
-            left  : 85px;
-            top   : 30px;
+            width : 20%;
+            height: 30%;
+            left  : 85%;
+            top   : 30%;
         }
         .level {
-            width: 20px;
-            height: 20px;
-            top: 50px;
-            left: 20px;
+            width: 20%;
+            height: 20%;
+            top: 50%;
+            left: 20%;
             border-radius: 25%;
-            font-size: 0.80rem;
+            font-size: 0.80em;
             color: black;
         }
         .flags {
-            top: 80px;
-            width: 90px;
-            font-size: 0.8rem;
+            top: 80%;
+            width: 90%;
+            font-size: 0.8em;
             text-align: center;
         }
         .height {
             background: #800;
-            width: 10px;
-            height: 10px;
-            left: 10px;
+            width: 10%;
+            height: 10%;
+            left: 10%;
             border-radius: 50%;
         }
     </style>
     
 </head>
 <body>
-<div id="controls">
-    <button id="roll">ROLL</button>
-</div>
 <div id="main"></div>
 
         <script type="application/javascript">
@@ -296,6 +321,12 @@
   //-- State --
   let handSize = 5;
   let choiceIndex = 0;
+  //-- Actions --
+  const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
+  const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
+  const choiceRandom = () => { choiceIndex = Math.floor(Math.random() * 7); };
+  const handsizeDown = () => { handSize = clamp(handSize - 1, 5, 12); };
+  const handsizeUp = () => { handSize = clamp(handSize + 1, 5, 12); };
   //-- Utils --
   function style(props) {
       const attributeValue = Object.entries(props)
@@ -341,9 +372,9 @@
   }
   function heightStyle(height) {
       switch (height) {
-          case StrikeHeight.Low: return { top: '25px' };
+          case StrikeHeight.Low: return { top: '25%' };
           case StrikeHeight.Mid: return { display: 'none' };
-          case StrikeHeight.High: return { top: '55px' };
+          case StrikeHeight.High: return { top: '55%' };
       }
   }
   function renderMove(choice) {
@@ -403,19 +434,27 @@
       const row = bot1.normal[rowIndex];
       const choice = row.choices[choiceIndex];
       return `
+        <div class="controls">
+            <button data-action="down"> - </button>
+            <button data-action="up"> + </button>
+            
+            <button class="large" data-action="roll"> ROLL </button>
+            
+            <button data-action="left"> &lt; </button>
+            <button data-action="right"> &gt; </button>
+        </div>
         <div class="header"> [${handSize}] / ${choiceIndex + 1} </div>
         <div class="move"> ${renderMove(choice)} </div>
     `;
   }
   function main() {
       const container = document.querySelector('#main');
-      const rollButton = document.querySelector('#roll');
       const KEY_HANDLERS = {
-          "ArrowLeft": () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); },
-          "ArrowRight": () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); },
-          "ArrowUp": () => { handSize = clamp(handSize - 1, 5, 12); },
-          "ArrowDown": () => { handSize = clamp(handSize + 1, 5, 12); },
-          "r": () => { choiceIndex = Math.floor(Math.random() * 7); },
+          "ArrowLeft": choiceLeft,
+          "ArrowRight": choiceRight,
+          "ArrowUp": handsizeDown,
+          "ArrowDown": handsizeUp,
+          "r": choiceRandom,
       };
       document.addEventListener('keydown', (e) => {
           const handler = KEY_HANDLERS[e.key];
@@ -424,9 +463,22 @@
               render();
           }
       });
-      rollButton.addEventListener('click', () => {
-          choiceIndex = Math.floor(Math.random() * 7);
-          render();
+      const ACTION_HANDLERS = {
+          roll: choiceRandom,
+          left: choiceLeft,
+          right: choiceRight,
+          up: handsizeUp,
+          down: handsizeDown,
+      };
+      document.documentElement.addEventListener('click', e => {
+          const target = e.target;
+          if (target instanceof HTMLButtonElement) {
+              const handler = ACTION_HANDLERS['' + target.dataset.action];
+              if (handler) {
+                  handler();
+                  render();
+              }
+          }
       });
       function render() {
           container.innerHTML = renderContent();
