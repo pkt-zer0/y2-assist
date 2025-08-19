@@ -5,6 +5,7 @@ import { Choice, MoveType, StrikeHeight } from './types.js';
 
 let handSize = 9;
 let choiceIndex = 0;
+let mode = '';
 
 //-- Actions --
 
@@ -13,6 +14,8 @@ const choiceRight  = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
 const choiceRandom = () => { choiceIndex = Math.floor(Math.random() * 8); };
 const handsizeDown = () => { handSize    = clamp(handSize - 1, 5, 12); };
 const handsizeUp   = () => { handSize    = clamp(handSize + 1, 5, 12); };
+
+const toggleKnockdown = () => { mode = mode ? '' : 'knockdown'; };
 
 //-- Utils --
 
@@ -116,10 +119,22 @@ function renderMove(choice: Choice) {
     `;
 }
 
-function renderContent() {
+function getChoice(): Choice {
+    // Mode-specific overrides
+    if (mode === 'knockdown') {
+        return bot1.knockdown[choiceIndex];
+    }
+
+    // Default choice
     const rowIndex = Math.floor((handSize - 5) / 2);
     const row = bot1.normal[rowIndex];
-    const choice = row.choices[choiceIndex];
+    return row.choices[choiceIndex];
+}
+
+function renderContent() {
+    const choice = getChoice();
+    const modeStr = !mode ? '' : `(${mode.toUpperCase()})`;
+    const knockdownChecked = mode == 'knockdown';
 
     return `
         <div class="controls">
@@ -131,12 +146,19 @@ function renderContent() {
             <button data-action="left"> &lt; </button>
             <button data-action="right"> &gt; </button>
         </div>
-        <div class="header"> [${handSize}] / ${choiceIndex + 1} </div>
+        <div class="toggles">
+            <label>
+                <input type="checkbox" name="knockdown" ${when(knockdownChecked, 'checked')} />        
+                Knockdown        
+            </label>
+        </div>
+        <div class="header"> [${handSize}] / ${choiceIndex + 1} ${modeStr}</div>
         <div class="move"> ${renderMove(choice)} </div>
     `;
 }
 
 function main() {
+    const html = document.documentElement;
     const container = document.querySelector('#main')!;
 
     const KEY_HANDLERS = {
@@ -145,6 +167,7 @@ function main() {
         "ArrowUp"   : handsizeDown,
         "ArrowDown" : handsizeUp,
         "r"         : choiceRandom,
+        "k"         : toggleKnockdown,
     };
     document.addEventListener('keydown', (e) => {
         const handler = KEY_HANDLERS[e.key];
@@ -161,7 +184,7 @@ function main() {
         up   : handsizeUp,
         down : handsizeDown,
     };
-    document.documentElement.addEventListener('click', e => {
+    html.addEventListener('click', e => {
         const target = e.target;
         if (target instanceof HTMLButtonElement) {
             const handler = ACTION_HANDLERS['' + target.dataset.action];
@@ -170,6 +193,10 @@ function main() {
                 render();
             }
         }
+    });
+    html.addEventListener('change', () => {
+        toggleKnockdown();
+        render();
     });
     
     function render() {
