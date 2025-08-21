@@ -63,7 +63,7 @@ function columnsFrom<T extends object>(obj: Array<T>): ColumnsOf<T> {
         // Returns a proxy where every property returns an empty array
         return EMPTY_LINE as ColumnsOf<T>;
     }
-    const keys = Object.keys(obj[0]);
+    const keys = Object.keys(obj[0]) as Array<keyof T>;
     for (const key of keys) {
         result[key] = [];
         for (let i = 0; i < items; i++) {

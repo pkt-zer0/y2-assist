@@ -1,4 +1,4 @@
-import { bot1 } from './bots.js';
+import { bot1, BotDefinition, ChoiceRow } from './bots.js';
 import { Choice, MoveType, StrikeHeight } from './types.js';
 
 //-- State --
@@ -6,6 +6,7 @@ import { Choice, MoveType, StrikeHeight } from './types.js';
 let handSize = 9;
 let choiceIndex = 0;
 let mode = '';
+let hitback = false;
 
 //-- Actions --
 
@@ -15,7 +16,8 @@ const choiceRandom = () => { choiceIndex = Math.floor(Math.random() * 8); };
 const handsizeDown = () => { handSize    = clamp(handSize - 1, 5, 12); };
 const handsizeUp   = () => { handSize    = clamp(handSize + 1, 5, 12); };
 
-const toggleKnockdown = () => { mode = mode ? '' : 'knockdown'; };
+const toggleKnockdown = () => { mode    = mode ? '' : 'knockdown'; };
+const toggleHitback   = () => { hitback = !hitback; };
 
 //-- Utils --
 
@@ -119,20 +121,33 @@ function renderMove(choice: Choice) {
     `;
 }
 
-function getChoice(): Choice {
-    // Mode-specific overrides
-    if (mode === 'knockdown') {
-        return bot1.knockdown[choiceIndex];
-    }
-
+function getChoiceRow(bot: BotDefinition): ChoiceRow {
     // Default choice
     const rowIndex = Math.floor((handSize - 5) / 2);
-    const row = bot1.normal[rowIndex];
+    const row = bot.normal[rowIndex];
+
+    // Mode-specific overrides
+    if (mode === 'knockdown') {
+        const override = bot.knockdown;
+        return {
+            choices: override.choices,
+            hitback: override.hitback ?? row.hitback,
+        };
+    }
+
+    return row;
+}
+function getChoice(bot: BotDefinition): Choice {
+    const row = getChoiceRow(bot);
+    if (hitback) {
+        return row.hitback!;
+    }
+
     return row.choices[choiceIndex];
 }
 
 function renderContent() {
-    const choice = getChoice();
+    const choice = getChoice(bot1);
     const modeStr = !mode ? '' : `(${mode.toUpperCase()})`;
     const knockdownChecked = mode == 'knockdown';
 
@@ -151,23 +166,30 @@ function renderContent() {
                 <input type="checkbox" name="knockdown" ${when(knockdownChecked, 'checked')} />        
                 Knockdown        
             </label>
+            <label>
+                <input type="checkbox" name="hitback" ${when(hitback, 'checked')} />        
+                Hitback        
+            </label>
         </div>
         <div class="header"> [${handSize}] / ${choiceIndex + 1} ${modeStr}</div>
         <div class="move"> ${renderMove(choice)} </div>
     `;
 }
 
+type EventHandler = () => void;
+
 function main() {
     const html = document.documentElement;
     const container = document.querySelector('#main')!;
 
-    const KEY_HANDLERS = {
+    const KEY_HANDLERS: Record<string, EventHandler> = {
         "ArrowLeft" : choiceLeft,
         "ArrowRight": choiceRight,
         "ArrowUp"   : handsizeDown,
         "ArrowDown" : handsizeUp,
         "r"         : choiceRandom,
         "k"         : toggleKnockdown,
+        "h"         : toggleHitback,
     };
     document.addEventListener('keydown', (e) => {
         const handler = KEY_HANDLERS[e.key];
@@ -177,7 +199,7 @@ function main() {
         }
     });
 
-    const ACTION_HANDLERS = {
+    const ACTION_HANDLERS: Record<string, EventHandler> = {
         roll : choiceRandom,
         left : choiceLeft,
         right: choiceRight,
@@ -194,8 +216,16 @@ function main() {
             }
         }
     });
-    html.addEventListener('change', () => {
-        toggleKnockdown();
+
+    html.addEventListener('change', e => {
+        const target = e.target;
+        if (target instanceof HTMLInputElement) {
+            if (target.name === 'knockdown') {
+                toggleKnockdown();
+            } else if (target.name === 'hitback') {
+                toggleHitback();
+            }
+        }
         render();
     });
     

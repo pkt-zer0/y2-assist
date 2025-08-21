@@ -13,6 +13,7 @@
             padding: 0;
             margin: 0;
             height: 100%;
+            overflow: hidden;
         }
         #main {
             height: 100%;
@@ -269,7 +270,8 @@
                   cStrike(12, 7, { description: 'Z → C', adjust: -1, blockDamage: 1, firstDamage: 7, height: StrikeHeight.High }),
                   cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
                   cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
-              ] },
+              ], hitback: cThrow(7, 0, { adjust: -1 })
+          },
           { minHand: 7, maxHand: 8, choices: [
                   BLOCK_LOW,
                   BLOCK_HIGH,
@@ -279,7 +281,8 @@
                   cStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
                   cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
                   cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
-              ] },
+              ], hitback: cStrike(10, 0, { adjust: -1 })
+          },
           { minHand: 9, maxHand: 10, choices: [
                   BLOCK_LOW,
                   BLOCK_HIGH,
@@ -289,7 +292,8 @@
                   cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
                   cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
                   cDodge(7, { description: 'd → t', adjust: -1, knockdown: true }),
-              ] },
+              ], hitback: cStrike(10, 0, { adjust: -1 })
+          },
           { minHand: 11, maxHand: 12, choices: [
                   cDodge(30, { description: '2', adjust: -2, always: true, super: true }),
                   cDodge(7, { description: 'd → t', adjust: -1, knockdown: true }),
@@ -299,30 +303,26 @@
                   cStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
                   cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
                   cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
-              ] },
+              ], hitback: cStrike(20, 0, { adjust: -2 })
+          },
       ],
-      knockdown: [
-          BLOCK_HIGH,
-          cThrow(7, 5),
-          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-          cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-      ],
-      hitback: [
-          { minHand: 5, maxHand: 6, ...cThrow(7, 0), adjust: -1 },
-          { minHand: 7, maxHand: 8, ...cStrike(10, 0), adjust: -1 },
-          { minHand: 9, maxHand: 10, ...cStrike(10, 0), adjust: -1 },
-          { minHand: 11, maxHand: 12, ...cStrike(20, 0), adjust: -2 },
-      ],
+      knockdown: { choices: [
+              BLOCK_HIGH,
+              cThrow(7, 5),
+              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
+          ] },
   };
 
   //-- State --
   let handSize = 9;
   let choiceIndex = 0;
   let mode = '';
+  let hitback = false;
   //-- Actions --
   const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
   const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
@@ -330,6 +330,7 @@
   const handsizeDown = () => { handSize = clamp(handSize - 1, 5, 12); };
   const handsizeUp = () => { handSize = clamp(handSize + 1, 5, 12); };
   const toggleKnockdown = () => { mode = mode ? '' : 'knockdown'; };
+  const toggleHitback = () => { hitback = !hitback; };
   //-- Utils --
   function style(props) {
       const attributeValue = Object.entries(props)
@@ -432,18 +433,29 @@
         ${when(adjust, `<div class="adjust"> ${adjust}${always ? '!' : ''} </div>`)}
     `;
   }
-  function getChoice() {
-      // Mode-specific overrides
-      if (mode === 'knockdown') {
-          return bot1.knockdown[choiceIndex];
-      }
+  function getChoiceRow(bot) {
       // Default choice
       const rowIndex = Math.floor((handSize - 5) / 2);
-      const row = bot1.normal[rowIndex];
+      const row = bot.normal[rowIndex];
+      // Mode-specific overrides
+      if (mode === 'knockdown') {
+          const override = bot.knockdown;
+          return {
+              choices: override.choices,
+              hitback: override.hitback ?? row.hitback,
+          };
+      }
+      return row;
+  }
+  function getChoice(bot) {
+      const row = getChoiceRow(bot);
+      if (hitback) {
+          return row.hitback;
+      }
       return row.choices[choiceIndex];
   }
   function renderContent() {
-      const choice = getChoice();
+      const choice = getChoice(bot1);
       const modeStr = !mode ? '' : `(${mode.toUpperCase()})`;
       const knockdownChecked = mode == 'knockdown';
       return `
@@ -461,6 +473,10 @@
                 <input type="checkbox" name="knockdown" ${when(knockdownChecked, 'checked')} />        
                 Knockdown        
             </label>
+            <label>
+                <input type="checkbox" name="hitback" ${when(hitback, 'checked')} />        
+                Hitback        
+            </label>
         </div>
         <div class="header"> [${handSize}] / ${choiceIndex + 1} ${modeStr}</div>
         <div class="move"> ${renderMove(choice)} </div>
@@ -476,6 +492,7 @@
           "ArrowDown": handsizeUp,
           "r": choiceRandom,
           "k": toggleKnockdown,
+          "h": toggleHitback,
       };
       document.addEventListener('keydown', (e) => {
           const handler = KEY_HANDLERS[e.key];
@@ -501,8 +518,16 @@
               }
           }
       });
-      html.addEventListener('change', () => {
-          toggleKnockdown();
+      html.addEventListener('change', e => {
+          const target = e.target;
+          if (target instanceof HTMLInputElement) {
+              if (target.name === 'knockdown') {
+                  toggleKnockdown();
+              }
+              else if (target.name === 'hitback') {
+                  toggleHitback();
+              }
+          }
           render();
       });
       function render() {
