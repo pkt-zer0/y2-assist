@@ -68,9 +68,9 @@ function typeClass(type: MoveType) {
 
 function heightStyle(height: StrikeHeight) {
     switch (height) {
-        case StrikeHeight.Low : return { top: '25%' };
+        case StrikeHeight.Low : return { top: '55%' };
         case StrikeHeight.Mid : return { display: 'none' };
-        case StrikeHeight.High: return { top: '55%' };
+        case StrikeHeight.High: return { top: '25%' };
 
     }
 }
