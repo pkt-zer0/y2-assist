@@ -259,6 +259,15 @@
       };
   }
 
+  function applyOverride(base, override) {
+      const choices = override.choices.map((c, i) => {
+          return c ?? base.choices[i];
+      });
+      return {
+          choices,
+          hitback: override.hitback ?? base.hitback
+      };
+  }
   const bot1 = {
       normal: [
           { minHand: 5, maxHand: 6, choices: [
@@ -316,6 +325,18 @@
               cStrike(10, 11, { blockDamage: 2, unsafe: true }),
               cStrike(10, 11, { blockDamage: 2, unsafe: true }),
           ] },
+      desperate: {
+          choices: [
+              null,
+              null,
+              null,
+              null,
+              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+          ]
+      }
   };
 
   //-- State --
@@ -323,6 +344,7 @@
   let choiceIndex = 0;
   let mode = '';
   let hitback = false;
+  let desperate = false;
   //-- Actions --
   const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
   const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
@@ -331,6 +353,7 @@
   const handsizeUp = () => { handSize = clamp(handSize + 1, 5, 12); };
   const toggleKnockdown = () => { mode = mode ? '' : 'knockdown'; };
   const toggleHitback = () => { hitback = !hitback; };
+  const toggleDesperate = () => { desperate = !desperate; };
   //-- Utils --
   function style(props) {
       const attributeValue = Object.entries(props)
@@ -436,14 +459,13 @@
   function getChoiceRow(bot) {
       // Default choice
       const rowIndex = Math.floor((handSize - 5) / 2);
-      const row = bot.normal[rowIndex];
+      let row = bot.normal[rowIndex];
       // Mode-specific overrides
+      if (desperate) {
+          row = applyOverride(row, bot.desperate);
+      }
       if (mode === 'knockdown') {
-          const override = bot.knockdown;
-          return {
-              choices: override.choices,
-              hitback: override.hitback ?? row.hitback,
-          };
+          row = applyOverride(row, bot.knockdown);
       }
       return row;
   }
@@ -457,7 +479,8 @@
   function renderContent() {
       const choice = getChoice(bot1);
       const modeStr = !mode ? '' : `(${mode.toUpperCase()})`;
-      const knockdownChecked = mode == 'knockdown';
+      const isKnockdown = mode == 'knockdown';
+      const choiceText = hitback ? '*' : choiceIndex + 1;
       return `
         <div class="controls">
             <button data-action="down"> - </button>
@@ -470,15 +493,19 @@
         </div>
         <div class="toggles">
             <label>
-                <input type="checkbox" name="knockdown" ${when(knockdownChecked, 'checked')} />        
-                Knockdown        
+                <input type="checkbox" name="knockdown" ${when(isKnockdown, 'checked')} />        
+                Knockdown
             </label>
             <label>
                 <input type="checkbox" name="hitback" ${when(hitback, 'checked')} />        
-                Hitback        
+                Hitback
+            </label>
+            <label>
+                <input type="checkbox" name="desperate" ${when(desperate, 'checked')} />        
+                Desperate
             </label>
         </div>
-        <div class="header"> [${handSize}] / ${choiceIndex + 1} ${modeStr}</div>
+        <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
         <div class="move"> ${renderMove(choice)} </div>
     `;
   }
@@ -493,6 +520,7 @@
           "r": choiceRandom,
           "k": toggleKnockdown,
           "h": toggleHitback,
+          "d": toggleDesperate,
       };
       document.addEventListener('keydown', (e) => {
           const handler = KEY_HANDLERS[e.key];
@@ -526,6 +554,9 @@
               }
               else if (target.name === 'hitback') {
                   toggleHitback();
+              }
+              else if (target.name === 'desperate') {
+                  toggleDesperate();
               }
           }
           render();

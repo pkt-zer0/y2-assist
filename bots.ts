@@ -21,11 +21,27 @@ export type ChoiceRow = {
     choices: Choice[];
     hitback?: Choice;
 }
+export type OverrideRow = {
+    choices: Array<Choice | null>;
+    hitback?: Choice;
+}
 
 type MoveChoiceRow = HandSizeRange & ChoiceRow;
 export interface BotDefinition {
     normal: MoveChoiceRow[];
     knockdown: ChoiceRow;
+    desperate: OverrideRow
+}
+
+export function applyOverride(base: ChoiceRow, override: OverrideRow): ChoiceRow {
+    const choices = override.choices.map((c, i) => {
+        return c ?? base.choices[i];
+    });
+
+    return {
+        choices,
+        hitback: override.hitback ?? base.hitback
+    };
 }
 
 export const bot1: BotDefinition = {
@@ -85,4 +101,16 @@ export const bot1: BotDefinition = {
         cStrike(10, 11, { blockDamage: 2, unsafe: true }),
         cStrike(10, 11, { blockDamage: 2, unsafe: true }),
     ] },
+    desperate: {
+        choices: [
+            null,
+            null,
+            null,
+            null,
+            cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+            cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+            cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+            cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
+        ]
+    }
 };
