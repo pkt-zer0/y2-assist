@@ -8,6 +8,7 @@
     <style>
         html {
             font-size: 4vw;
+            user-select: none;
         }
         html, body {
             padding: 0;
@@ -16,31 +17,44 @@
             overflow: hidden;
         }
         #main {
+            display: flex;
+            flex-direction: column;
             height: 100%;
         }
         * {
             box-sizing: border-box;
             touch-action: manipulation;
         }
-        .controls {
+        .controls, .toggles {
             display: flex;
             width: 100%;
-            height: 10%;
-            min-height: 2rem;
+            height: 3rem;
             justify-content: space-between;
         }
+        .toggles {
+            height: 2rem;
+        }
         button {
+            background: #f0f0f0;
+            color: black;
+
             font-size: 1rem;
+            flex-basis: 0;
             flex-grow: 1;
             margin: 0 0.5rem;
+            border-width: 0.0625rem;
         }
         button.large {
             flex-grow: 2;
         }
+        button.on {
+            background: #333;
+            color: white;
+        }
         .move {
             position: relative;
             width: 75vw;
-            height: 75vw;
+            aspect-ratio: 1;
             font-size: 3rem;
             margin: auto;
         }
@@ -101,7 +115,7 @@
             background: sandybrown;
             width : 20%;
             height: 30%;
-            left  : 85%;
+            left  : 80%;
             top   : 30%;
         }
         .level {
@@ -397,11 +411,14 @@
           default: return '';
       }
   }
+  function toggleClass(enabled) {
+      return enabled ? 'on' : 'off';
+  }
   function heightStyle(height) {
       switch (height) {
-          case StrikeHeight.Low: return { top: '25%' };
+          case StrikeHeight.Low: return { top: '55%' };
           case StrikeHeight.Mid: return { display: 'none' };
-          case StrikeHeight.High: return { top: '55%' };
+          case StrikeHeight.High: return { top: '25%' };
       }
   }
   function renderMove(choice) {
@@ -482,31 +499,22 @@
       const isKnockdown = mode == 'knockdown';
       const choiceText = hitback ? '*' : choiceIndex + 1;
       return `
+        <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
+        <div class="move"> ${renderMove(choice)} </div>
+        <div class="toggles">
+            <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+            <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
+            <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
+        </div>
         <div class="controls">
-            <button data-action="down"> - </button>
-            <button data-action="up"> + </button>
+            <button data-action="left"> &lt; </button>
+            <button data-action="right"> &gt; </button>
             
             <button class="large" data-action="roll"> ROLL </button>
             
-            <button data-action="left"> &lt; </button>
-            <button data-action="right"> &gt; </button>
+            <button data-action="down"> - </button>
+            <button data-action="up"> + </button>
         </div>
-        <div class="toggles">
-            <label>
-                <input type="checkbox" name="knockdown" ${when(isKnockdown, 'checked')} />        
-                Knockdown
-            </label>
-            <label>
-                <input type="checkbox" name="hitback" ${when(hitback, 'checked')} />        
-                Hitback
-            </label>
-            <label>
-                <input type="checkbox" name="desperate" ${when(desperate, 'checked')} />        
-                Desperate
-            </label>
-        </div>
-        <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
-        <div class="move"> ${renderMove(choice)} </div>
     `;
   }
   function main() {
@@ -535,6 +543,10 @@
           right: choiceRight,
           up: handsizeUp,
           down: handsizeDown,
+          // Toggles
+          knockdown: toggleKnockdown,
+          hitback: toggleHitback,
+          desperate: toggleDesperate,
       };
       html.addEventListener('click', e => {
           const target = e.target;
@@ -545,21 +557,6 @@
                   render();
               }
           }
-      });
-      html.addEventListener('change', e => {
-          const target = e.target;
-          if (target instanceof HTMLInputElement) {
-              if (target.name === 'knockdown') {
-                  toggleKnockdown();
-              }
-              else if (target.name === 'hitback') {
-                  toggleHitback();
-              }
-              else if (target.name === 'desperate') {
-                  toggleDesperate();
-              }
-          }
-          render();
       });
       function render() {
           container.innerHTML = renderContent();

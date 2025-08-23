@@ -8,6 +8,7 @@
     <style>
         html {
             font-size: 4vw;
+            user-select: none;
         }
         html, body {
             padding: 0;
@@ -16,26 +17,39 @@
             overflow: hidden;
         }
         #main {
+            display: flex;
+            flex-direction: column;
             height: 100%;
         }
         * {
             box-sizing: border-box;
             touch-action: manipulation;
         }
-        .controls {
+        .controls, .toggles {
             display: flex;
             width: 100%;
-            height: 10%;
-            min-height: 2rem;
+            height: 3rem;
             justify-content: space-between;
         }
+        .toggles {
+            height: 2rem;
+        }
         button {
+            background: #f0f0f0;
+            color: black;
+
             font-size: 1rem;
+            flex-basis: 0;
             flex-grow: 1;
             margin: 0 0.5rem;
+            border-width: 0.0625rem;
         }
         button.large {
             flex-grow: 2;
+        }
+        button.on {
+            background: #333;
+            color: white;
         }
         .move {
             position: relative;

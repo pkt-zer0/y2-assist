@@ -65,6 +65,9 @@ function typeClass(type: MoveType) {
         default: return '';
     }
 }
+function toggleClass(enabled: boolean) {
+    return enabled ? 'on' : 'off';
+}
 
 function heightStyle(height: StrikeHeight) {
     switch (height) {
@@ -154,31 +157,22 @@ function renderContent() {
     const choiceText = hitback ? '*' : choiceIndex + 1;
 
     return `
+        <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
+        <div class="move"> ${renderMove(choice)} </div>
+        <div class="toggles">
+            <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+            <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
+            <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
+        </div>
         <div class="controls">
-            <button data-action="down"> - </button>
-            <button data-action="up"> + </button>
+            <button data-action="left"> &lt; </button>
+            <button data-action="right"> &gt; </button>
             
             <button class="large" data-action="roll"> ROLL </button>
             
-            <button data-action="left"> &lt; </button>
-            <button data-action="right"> &gt; </button>
+            <button data-action="down"> - </button>
+            <button data-action="up"> + </button>
         </div>
-        <div class="toggles">
-            <label>
-                <input type="checkbox" name="knockdown" ${when(isKnockdown, 'checked')} />        
-                Knockdown
-            </label>
-            <label>
-                <input type="checkbox" name="hitback" ${when(hitback, 'checked')} />        
-                Hitback
-            </label>
-            <label>
-                <input type="checkbox" name="desperate" ${when(desperate, 'checked')} />        
-                Desperate
-            </label>
-        </div>
-        <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
-        <div class="move"> ${renderMove(choice)} </div>
     `;
 }
 
@@ -212,6 +206,10 @@ function main() {
         right: choiceRight,
         up   : handsizeUp,
         down : handsizeDown,
+        // Toggles
+        knockdown : toggleKnockdown,
+        hitback   : toggleHitback,
+        desperate : toggleDesperate,
     };
     html.addEventListener('click', e => {
         const target = e.target;
@@ -224,20 +222,6 @@ function main() {
         }
     });
 
-    html.addEventListener('change', e => {
-        const target = e.target;
-        if (target instanceof HTMLInputElement) {
-            if (target.name === 'knockdown') {
-                toggleKnockdown();
-            } else if (target.name === 'hitback') {
-                toggleHitback();
-            } else if (target.name === 'desperate') {
-                toggleDesperate();
-            }
-        }
-        render();
-    });
-    
     function render() {
         container.innerHTML = renderContent();
     }
