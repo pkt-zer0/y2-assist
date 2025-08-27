@@ -16,19 +16,22 @@
             height: 100%;
             overflow: hidden;
         }
-        #main {
-            display: flex;
-            flex-direction: column;
+        #main, .screen {
             height: 100%;
         }
         * {
             box-sizing: border-box;
             touch-action: manipulation;
         }
-        .controls, .toggles {
+        .screen.main, .screen.picker {
+            display: flex;
+            flex-direction: column;
+        }
+        .controls, .toggles, .header {
             display: flex;
             width: 100%;
             height: 3rem;
+            font-size: 2rem;
             justify-content: space-between;
         }
         .toggles {
@@ -46,6 +49,9 @@
         }
         button.large {
             flex-grow: 2;
+        }
+        button.fixed {
+            flex-grow: 0;
         }
         button.on {
             background: #333;
@@ -283,6 +289,7 @@
       };
   }
   const bot1 = {
+      name: 'Glass Monk',
       normal: [
           { minHand: 5, maxHand: 6, choices: [
                   BLOCK_LOW,
@@ -352,6 +359,9 @@
           ]
       }
   };
+  const BOTS = {
+      M1: bot1,
+  };
 
   //-- State --
   let handSize = 9;
@@ -359,6 +369,9 @@
   let mode = '';
   let hitback = false;
   let desperate = false;
+  let chosenBotID = undefined;
+  let chosenBot = undefined;
+  let showPicker = true;
   //-- Actions --
   const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
   const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
@@ -368,6 +381,33 @@
   const toggleKnockdown = () => { mode = mode ? '' : 'knockdown'; };
   const toggleHitback = () => { hitback = !hitback; };
   const toggleDesperate = () => { desperate = !desperate; };
+  const displayPicker = () => { showPicker = true; };
+  const changeCharacter = (data) => {
+      const chosen = data.char;
+      if (chosen) {
+          chosenBotID = chosen;
+          chosenBot = BOTS[chosenBotID];
+          showPicker = false;
+          save();
+      }
+  };
+  //-- Persistence --
+  const STORAGE_KEY = 'y2_assist';
+  function save() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          chosenBotID
+      }));
+  }
+  function load() {
+      const rawData = localStorage.getItem(STORAGE_KEY);
+      if (rawData) {
+          const data = JSON.parse(rawData);
+          chosenBotID = data.chosenBotID;
+          // Update derived state
+          chosenBot = BOTS[chosenBotID];
+          showPicker = !chosenBotID;
+      }
+  }
   //-- Utils --
   function style(props) {
       const attributeValue = Object.entries(props)
@@ -494,26 +534,64 @@
       return row.choices[choiceIndex];
   }
   function renderContent() {
-      const choice = getChoice(bot1);
-      const modeStr = !mode ? '' : `(${mode.toUpperCase()})`;
+      if (showPicker) {
+          return renderPicker();
+      }
+      else {
+          return renderBot(chosenBot);
+      }
+  }
+  function renderBot(bot) {
+      if (!bot) {
+          return `
+            <div class="header">
+                <button class="fixed" data-action="picker">Change</button>
+            </div>
+            <h1>⚠ Work in progress! ⚠</div>
+        `;
+      }
+      const choice = getChoice(bot);
       const isKnockdown = mode == 'knockdown';
       const choiceText = hitback ? '*' : choiceIndex + 1;
       return `
-        <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
-        <div class="move"> ${renderMove(choice)} </div>
-        <div class="toggles">
-            <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
-            <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
-            <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
+        <div class="screen main">
+            <div class="header">
+                <span>[${handSize}] / ${choiceText}</span>
+                <span> ${(bot.name)}</span>
+                <button class="fixed" data-action="picker">Change</button>
+            </div>
+            <div class="move"> ${renderMove(choice)} </div>
+            <div class="toggles">
+                <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+                <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
+                <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
+            </div>
+            <div class="controls">
+                <button data-action="left"> &lt; </button>
+                <button data-action="right"> &gt; </button>
+                
+                <button class="large" data-action="roll"> ROLL </button>
+                
+                <button data-action="down"> - </button>
+                <button data-action="up"> + </button>
+            </div>
         </div>
-        <div class="controls">
-            <button data-action="left"> &lt; </button>
-            <button data-action="right"> &gt; </button>
-            
-            <button class="large" data-action="roll"> ROLL </button>
-            
-            <button data-action="down"> - </button>
-            <button data-action="up"> + </button>
+    `;
+  }
+  function renderPicker() {
+      return `
+        <div class="screen picker">
+            <button data-action="pick" data-char="M1">(1) Glass Monk</button>
+            <button data-action="pick" data-char="M2">(2) ⚠ Fox Primus</button>
+            <button data-action="pick" data-char="M3">(3) ⚠ Colossus</button>
+            <button data-action="pick" data-char="M4">(4) ⚠ Twilight Baron</button>
+            <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
+
+            <button data-action="pick" data-char="F1">(1) ⚠ Soothing Monk</button>
+            <button data-action="pick" data-char="F2">(2) ⚠ Whitestar Grappler</button>
+            <button data-action="pick" data-char="F3">(3) ⚠ Ancient Hero</button>
+            <button data-action="pick" data-char="F4">(4) ⚠ Jandra, the Negator</button>
+            <button data-action="pick" data-char="F5">(5) ⚠ Dragonborn Firebat</button>
         </div>
     `;
   }
@@ -547,13 +625,16 @@
           knockdown: toggleKnockdown,
           hitback: toggleHitback,
           desperate: toggleDesperate,
+          // Character picker
+          picker: displayPicker,
+          pick: changeCharacter,
       };
       html.addEventListener('click', e => {
           const target = e.target;
           if (target instanceof HTMLButtonElement) {
               const handler = ACTION_HANDLERS['' + target.dataset.action];
               if (handler) {
-                  handler();
+                  handler(target.dataset);
                   render();
               }
           }
@@ -561,6 +642,8 @@
       function render() {
           container.innerHTML = renderContent();
       }
+      // Rerender with initial state
+      load();
       render();
   }
   document.addEventListener('DOMContentLoaded', main);

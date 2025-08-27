@@ -9,6 +9,7 @@ let mode = '';
 let hitback = false;
 let desperate = false;
 
+let chosenBotID: string | undefined = undefined;
 let chosenBot: BotDefinition | undefined = undefined;
 let showPicker = true;
 
@@ -28,10 +29,32 @@ const displayPicker   = () => { showPicker = true; };
 const changeCharacter = (data: DOMStringMap) => {
     const chosen = data.char;
     if (chosen) {
-        chosenBot = BOTS[chosen];
+        chosenBotID = chosen;
+        chosenBot = BOTS[chosenBotID];
         showPicker = false;
+        save();
     }
 };
+
+//-- Persistence --
+
+const STORAGE_KEY = 'y2_assist';
+function save() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        chosenBotID
+    }));
+}
+function load() {
+    const rawData = localStorage.getItem(STORAGE_KEY);
+    if (rawData) {
+        const data = JSON.parse(rawData);
+        chosenBotID = data.chosenBotID;
+
+        // Update derived state
+        chosenBot = BOTS[chosenBotID!];
+        showPicker = !chosenBotID;
+    }
+}
 
 //-- Utils --
 
@@ -280,6 +303,9 @@ function main() {
     function render() {
         container.innerHTML = renderContent();
     }
+
+    // Rerender with initial state
+    load();
     render();
 }
 
