@@ -28,6 +28,7 @@ export type OverrideRow = {
 
 type MoveChoiceRow = HandSizeRange & ChoiceRow;
 export interface BotDefinition {
+    name: string;
     normal: MoveChoiceRow[];
     knockdown: ChoiceRow;
     desperate: OverrideRow
@@ -45,6 +46,7 @@ export function applyOverride(base: ChoiceRow, override: OverrideRow): ChoiceRow
 }
 
 const bot1: BotDefinition = {
+    name: 'Glass Monk',
     normal: [
         { minHand: 5, maxHand: 6, choices: [
             BLOCK_LOW,

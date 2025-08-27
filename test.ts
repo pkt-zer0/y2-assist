@@ -1,4 +1,4 @@
-import { bot1 } from './bots.js';
+import { BOTS } from './bots.js';
 import { BLOCK_LOW, BLOCK_HIGH } from './choices.js';
 import { StrikeHeight } from './types.js';
 import {
@@ -63,7 +63,7 @@ const shortForm: ChoiceInit[][] = [
 function checkParser() {
     for (let rowIndex = 0; rowIndex < shortForm.length; rowIndex ++) {
         const shortRow = shortForm[rowIndex];
-        const longRow = bot1.normal[rowIndex];
+        const longRow = BOTS.M1.normal[rowIndex];
 
         for (let choiceIndex = 0; choiceIndex < longRow.choices.length; choiceIndex++) {
             const actual = parseMove(shortRow[choiceIndex], MOVES_BOT1);

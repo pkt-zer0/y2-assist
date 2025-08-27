@@ -24,6 +24,7 @@ const toggleKnockdown = () => { mode      = mode ? '' : 'knockdown'; };
 const toggleHitback   = () => { hitback   = !hitback; };
 const toggleDesperate = () => { desperate = !desperate; };
 
+const displayPicker   = () => { showPicker = true; };
 const changeCharacter = (data: DOMStringMap) => {
     const chosen = data.char;
     if (chosen) {
@@ -171,17 +172,25 @@ function renderContent() {
 
 function renderBot(bot: BotDefinition | undefined) {
     if (!bot) {
-        return `<h1>⚠ Work in progress! ⚠</div>`;
+        return `
+            <div class="header">
+                <button class="fixed" data-action="picker">Change</button>
+            </div>
+            <h1>⚠ Work in progress! ⚠</div>
+        `;
     }
 
     const choice = getChoice(bot);
-    const modeStr = !mode ? '' : `(${mode.toUpperCase()})`;
     const isKnockdown = mode == 'knockdown';
     const choiceText = hitback ? '*' : choiceIndex + 1;
 
     return `
         <div class="screen main">
-            <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
+            <div class="header">
+                <span>[${handSize}] / ${choiceText}</span>
+                <span> ${(bot.name)}</span>
+                <button class="fixed" data-action="picker">Change</button>
+            </div>
             <div class="move"> ${renderMove(choice)} </div>
             <div class="toggles">
                 <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
@@ -254,7 +263,8 @@ function main() {
         hitback   : toggleHitback,
         desperate : toggleDesperate,
         // Character picker
-        pick: changeCharacter,
+        picker: displayPicker,
+        pick  : changeCharacter,
     };
     html.addEventListener('click', e => {
         const target = e.target;

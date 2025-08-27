@@ -27,10 +27,11 @@
             display: flex;
             flex-direction: column;
         }
-        .controls, .toggles {
+        .controls, .toggles, .header {
             display: flex;
             width: 100%;
             height: 3rem;
+            font-size: 2rem;
             justify-content: space-between;
         }
         .toggles {
@@ -48,6 +49,9 @@
         }
         button.large {
             flex-grow: 2;
+        }
+        button.fixed {
+            flex-grow: 0;
         }
         button.on {
             background: #333;
