@@ -16,14 +16,16 @@
             height: 100%;
             overflow: hidden;
         }
-        #main {
-            display: flex;
-            flex-direction: column;
+        #main, .screen {
             height: 100%;
         }
         * {
             box-sizing: border-box;
             touch-action: manipulation;
+        }
+        .screen.main, .screen.picker {
+            display: flex;
+            flex-direction: column;
         }
         .controls, .toggles {
             display: flex;

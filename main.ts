@@ -1,4 +1,4 @@
-import { applyOverride, bot1, BotDefinition, ChoiceRow } from './bots.js';
+import { applyOverride, BotDefinition, BOTS, ChoiceRow } from './bots.js';
 import { Choice, MoveType, StrikeHeight } from './types.js';
 
 //-- State --
@@ -8,6 +8,9 @@ let choiceIndex = 0;
 let mode = '';
 let hitback = false;
 let desperate = false;
+
+let chosenBot: BotDefinition | undefined = undefined;
+let showPicker = true;
 
 //-- Actions --
 
@@ -20,6 +23,14 @@ const handsizeUp   = () => { handSize    = clamp(handSize + 1, 5, 12); };
 const toggleKnockdown = () => { mode      = mode ? '' : 'knockdown'; };
 const toggleHitback   = () => { hitback   = !hitback; };
 const toggleDesperate = () => { desperate = !desperate; };
+
+const changeCharacter = (data: DOMStringMap) => {
+    const chosen = data.char;
+    if (chosen) {
+        chosenBot = BOTS[chosen];
+        showPicker = false;
+    }
+};
 
 //-- Utils --
 
@@ -151,38 +162,70 @@ function getChoice(bot: BotDefinition): Choice {
 }
 
 function renderContent() {
-    const choice = getChoice(bot1);
+    if (showPicker) {
+        return renderPicker();
+    } else {
+        return renderBot(chosenBot);
+    }
+}
+
+function renderBot(bot: BotDefinition | undefined) {
+    if (!bot) {
+        return `<h1>⚠ Work in progress! ⚠</div>`;
+    }
+
+    const choice = getChoice(bot);
     const modeStr = !mode ? '' : `(${mode.toUpperCase()})`;
     const isKnockdown = mode == 'knockdown';
     const choiceText = hitback ? '*' : choiceIndex + 1;
 
     return `
-        <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
-        <div class="move"> ${renderMove(choice)} </div>
-        <div class="toggles">
-            <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
-            <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
-            <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
-        </div>
-        <div class="controls">
-            <button data-action="left"> &lt; </button>
-            <button data-action="right"> &gt; </button>
-            
-            <button class="large" data-action="roll"> ROLL </button>
-            
-            <button data-action="down"> - </button>
-            <button data-action="up"> + </button>
+        <div class="screen main">
+            <div class="header"> [${handSize}] / ${choiceText} ${modeStr}</div>
+            <div class="move"> ${renderMove(choice)} </div>
+            <div class="toggles">
+                <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+                <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
+                <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
+            </div>
+            <div class="controls">
+                <button data-action="left"> &lt; </button>
+                <button data-action="right"> &gt; </button>
+                
+                <button class="large" data-action="roll"> ROLL </button>
+                
+                <button data-action="down"> - </button>
+                <button data-action="up"> + </button>
+            </div>
         </div>
     `;
 }
 
-type EventHandler = () => void;
+function renderPicker() {
+    return `
+        <div class="screen picker">
+            <button data-action="pick" data-char="M1">(1) Glass Monk</button>
+            <button data-action="pick" data-char="M2">(2) ⚠ Fox Primus</button>
+            <button data-action="pick" data-char="M3">(3) ⚠ Colossus</button>
+            <button data-action="pick" data-char="M4">(4) ⚠ Twilight Baron</button>
+            <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
+
+            <button data-action="pick" data-char="F1">(1) ⚠ Soothing Monk</button>
+            <button data-action="pick" data-char="F2">(2) ⚠ Whitestar Grappler</button>
+            <button data-action="pick" data-char="F3">(3) ⚠ Ancient Hero</button>
+            <button data-action="pick" data-char="F4">(4) ⚠ Jandra, the Negator</button>
+            <button data-action="pick" data-char="F5">(5) ⚠ Dragonborn Firebat</button>
+        </div>
+    `;
+}
+
+type EventHandler<T> = (data: T) => void;
 
 function main() {
     const html = document.documentElement;
     const container = document.querySelector('#main')!;
 
-    const KEY_HANDLERS: Record<string, EventHandler> = {
+    const KEY_HANDLERS: Record<string, EventHandler<void>> = {
         "ArrowLeft" : choiceLeft,
         "ArrowRight": choiceRight,
         "ArrowUp"   : handsizeDown,
@@ -200,7 +243,7 @@ function main() {
         }
     });
 
-    const ACTION_HANDLERS: Record<string, EventHandler> = {
+    const ACTION_HANDLERS: Record<string, EventHandler<DOMStringMap>> = {
         roll : choiceRandom,
         left : choiceLeft,
         right: choiceRight,
@@ -210,13 +253,15 @@ function main() {
         knockdown : toggleKnockdown,
         hitback   : toggleHitback,
         desperate : toggleDesperate,
+        // Character picker
+        pick: changeCharacter,
     };
     html.addEventListener('click', e => {
         const target = e.target;
         if (target instanceof HTMLButtonElement) {
             const handler = ACTION_HANDLERS['' + target.dataset.action];
             if (handler) {
-                handler();
+                handler(target.dataset);
                 render();
             }
         }

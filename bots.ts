@@ -44,7 +44,7 @@ export function applyOverride(base: ChoiceRow, override: OverrideRow): ChoiceRow
     };
 }
 
-export const bot1: BotDefinition = {
+const bot1: BotDefinition = {
     normal: [
         { minHand: 5, maxHand: 6, choices: [
             BLOCK_LOW,
@@ -113,4 +113,8 @@ export const bot1: BotDefinition = {
             cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
         ]
     }
+};
+
+export const BOTS: Record<string, BotDefinition> = {
+    M1: bot1,
 };
