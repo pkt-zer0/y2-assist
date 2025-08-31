@@ -1,4 +1,5 @@
-import { applyOverride, BotDefinition, BOTS, ChoiceRow } from './bots.js';
+import { BOTS } from './bots.js';
+import { applyOverride, BotDefinition, ChoiceRow } from './bots_types.js';
 import { Choice, MoveType, StrikeHeight } from './types.js';
 
 //-- State --
