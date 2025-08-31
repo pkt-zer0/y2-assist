@@ -121,7 +121,7 @@ function renderMove(choice: Choice) {
     } = choice;
 
     const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
-    const gapPosition = type === MoveType.BlockLow ? '50%' : '0';
+    const gapPosition = type === MoveType.BlockHigh ? '50%' : '0';
     const reversal = speed > 10;
     const speedStyle = reversal ? {
         background: '#333',
