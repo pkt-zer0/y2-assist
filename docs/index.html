@@ -31,7 +31,7 @@
             display: flex;
             width: 100%;
             height: 3rem;
-            font-size: 2rem;
+            font-size: 1.75rem;
             justify-content: space-between;
         }
         .toggles {
@@ -181,6 +181,9 @@
     - S, U : gem special, burst
   */
 
+  function sumBy(items, selector) {
+      return items.map(selector).reduce((acc, cur) => acc + cur);
+  }
   //-- Move creation helpers --
   const MOVE_DEFAULTS = {
       damage: 0,
@@ -227,6 +230,70 @@
           ...overrides,
       };
   }
+  //-- Parsing --
+  function moveset(def) {
+      const namedMoves = {};
+      for (let name in def) {
+          const move = def[name];
+          namedMoves[name] = { name, ...move };
+      }
+      return namedMoves;
+  }
+  function choiceFromMoves(moves, overrides = {}) {
+      const first = moves[0];
+      const last = moves[moves.length - 1];
+      const hasFollowup = moves.length > 1;
+      const description = hasFollowup
+          ? [first.name, ' → ', moves.slice(1).map(_ => _.name).join('')].join('')
+          : first.name;
+      const skipDescription = (first.type == MoveType.BlockHigh
+          || first.type == MoveType.BlockLow);
+      return {
+          // Determined by first move
+          type: first.type,
+          blockDamage: first.blockDamage,
+          speed: first.speed,
+          level: first.level,
+          height: first.height,
+          recur: first.recur,
+          drawOnBlock: first.drawOnBlock,
+          lockdown: first.lockdown,
+          super: first.super,
+          unsafe: first.unsafe,
+          always: first.super,
+          backstep: first.backstep,
+          // Determined by last move
+          knockdown: last.knockdown,
+          edge: last.edge,
+          // Determined by combo
+          damage: sumBy(moves, _ => _.damage),
+          adjust: -(moves.length - 1),
+          description: skipDescription ? '' : description,
+          firstDamage: hasFollowup ? first.damage : 0,
+          // Allow explicit overrides
+          ...overrides,
+      };
+  }
+  function convertShorthand(moveset, moveString, overrides) {
+      const named = moveString.split('').map(name => moveset[name]);
+      return choiceFromMoves(named, overrides);
+  }
+  function parseMove(shorthand, moveset) {
+      // Move list with override
+      if (Array.isArray(shorthand)) {
+          const [moveString, overrides] = shorthand;
+          return convertShorthand(moveset, moveString, overrides);
+      }
+      // Move list
+      if (typeof shorthand === 'string') {
+          return convertShorthand(moveset, shorthand, {});
+      }
+      // Explicit choice
+      if (typeof shorthand === 'object') {
+          return shorthand;
+      }
+      throw RangeError('Invalid shorthand descriptor: ' + shorthand);
+  }
 
   const CHOICE_DEFAULTS = {
       description: '',
@@ -247,37 +314,6 @@
       drawOnBlock: true,
       recur: true,
   };
-  function cThrow(damage, speed, overrides = {}) {
-      return {
-          ...mThrow(damage, speed),
-          ...CHOICE_DEFAULTS,
-          description: 't',
-          ...overrides,
-      };
-  }
-  function cStrike(damage, speed, overrides = {}) {
-      return {
-          ...mStrike(damage, speed),
-          ...CHOICE_DEFAULTS,
-          ...overrides,
-      };
-  }
-  function cProjectile(damage, speed, overrides = {}) {
-      return {
-          ...mProjectile(damage, speed),
-          ...CHOICE_DEFAULTS,
-          ...overrides,
-      };
-  }
-  function cDodge(damage, overrides = {}) {
-      return {
-          ...mDodge(),
-          ...CHOICE_DEFAULTS,
-          damage,
-          description: 'd',
-          ...overrides,
-      };
-  }
 
   function applyOverride(base, override) {
       const choices = override.choices.map((c, i) => {
@@ -288,79 +324,115 @@
           hitback: override.hitback ?? base.hitback
       };
   }
-  const bot1 = {
-      name: 'Glass Monk',
-      normal: [
-          { minHand: 5, maxHand: 6, choices: [
-                  BLOCK_LOW,
-                  BLOCK_HIGH,
-                  BLOCK_LOW,
-                  cThrow(7, 5),
-                  cStrike(11, 7, { description: 'B → Z', adjust: -1, firstDamage: 4, height: StrikeHeight.Low }),
-                  cStrike(12, 7, { description: 'Z → C', adjust: -1, blockDamage: 1, firstDamage: 7, height: StrikeHeight.High }),
-                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
-                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
-              ], hitback: cThrow(7, 0, { adjust: -1 })
+  function bot(moveset, init) {
+      const moveParser = (c) => parseMove(c, moveset);
+      const overrideParser = (c) => c === null ? null : parseMove(c, moveset);
+      return {
+          name: init.name,
+          normal: init.normal.map(i => {
+              const hitback = {
+                  ...moveParser(i.hitback),
+                  // Remove data irrelevant for hitback
+                  always: false,
+                  unsafe: false,
+                  speed: 0,
+                  blockDamage: 0,
+              };
+              // Normal moves count as an extra card spent, super moves only consider meter
+              if (!hitback.super) {
+                  hitback.adjust -= 1;
+              }
+              return ({
+                  minHand: i.min,
+                  maxHand: i.max,
+                  choices: i.choices.map(moveParser),
+                  hitback: hitback,
+              });
+          }),
+          knockdown: {
+              choices: init.knockdown.choices.map(moveParser),
           },
-          { minHand: 7, maxHand: 8, choices: [
-                  BLOCK_LOW,
-                  BLOCK_HIGH,
-                  BLOCK_LOW,
-                  cThrow(7, 5),
-                  cStrike(12, 8, { description: 'A → BC', adjust: -2, firstDamage: 3, height: StrikeHeight.Low }),
-                  cStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
-                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
-                  cProjectile(8, 7, { description: 'X', blockDamage: 4 }),
-              ], hitback: cStrike(10, 0, { adjust: -1 })
-          },
-          { minHand: 9, maxHand: 10, choices: [
-                  BLOCK_LOW,
-                  BLOCK_HIGH,
-                  BLOCK_LOW,
-                  cThrow(18, 5, { description: 't → CD', adjust: -2, firstDamage: 7, knockdown: false }),
-                  cThrow(18, 5, { description: 't → CD', adjust: -2, firstDamage: 7, knockdown: false }),
-                  cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                  cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                  cDodge(7, { description: 'd → t', adjust: -1, knockdown: true }),
-              ], hitback: cStrike(10, 0, { adjust: -1 })
-          },
-          { minHand: 11, maxHand: 12, choices: [
-                  cDodge(30, { description: '2', adjust: -2, always: true, super: true }),
-                  cDodge(7, { description: 'd → t', adjust: -1, knockdown: true }),
-                  cThrow(20, 5, { description: 't → DE', adjust: -2, firstDamage: 7, knockdown: false }),
-                  cThrow(20, 5, { description: 't → DE', adjust: -2, firstDamage: 7, knockdown: false }),
-                  cStrike(20, 8, { description: 'A → BCX', adjust: -3, firstDamage: 3, height: StrikeHeight.Low }),
-                  cStrike(10, 11, { description: 'Y', blockDamage: 2, unsafe: true }),
-                  cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
-                  cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
-              ], hitback: cStrike(20, 0, { adjust: -2 })
-          },
-      ],
-      knockdown: { choices: [
-              BLOCK_HIGH,
-              cThrow(7, 5),
-              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-              cStrike(10, 11, { blockDamage: 2, unsafe: true }),
-          ] },
-      desperate: {
-          choices: [
-              null,
-              null,
-              null,
-              null,
-              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
-              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
-              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
-              cStrike(20, 15, { description: '1', blockDamage: 1, adjust: -2, always: true, unsafe: true, super: true }),
-          ]
-      }
-  };
+          desperate: {
+              choices: init.desperate.choices.map(overrideParser),
+          }
+      };
+  }
+
+  // Grave
+  const bot1 = (function () {
+      const MOVES = moveset({
+          // Normal
+          A: mStrike(3, 8, { height: StrikeHeight.Low }),
+          B: mStrike(4, 7, { height: StrikeHeight.Low }),
+          C: mStrike(5, 6),
+          D: mStrike(6, 5, { height: StrikeHeight.High }),
+          E: mStrike(7, 4, { height: StrikeHeight.High }),
+          t: mThrow(7, 5),
+          // Defense
+          h: BLOCK_HIGH,
+          l: BLOCK_LOW,
+          d: mDodge(),
+          // Special
+          X: mProjectile(8, 7, { blockDamage: 4 }),
+          Y: mStrike(10, 11, { blockDamage: 2, unsafe: true }),
+          Z: mStrike(7, 7, { blockDamage: 1, height: StrikeHeight.High }),
+          // Super
+          1: mStrike(20, 15, { super: true, blockDamage: 1, unsafe: true }),
+          2: mDodge({ super: true, damage: 30 }),
+      });
+      const S1 = ['1', { adjust: -2 }];
+      const S2 = ['2', { adjust: -2 }];
+      return bot(MOVES, {
+          name: 'Glass Monk',
+          normal: [
+              { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 'BZ', 'ZC', 'X', 'X'], hitback: 't' },
+              { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'ABC', 'Y', 'X', 'X'], hitback: 'Y' },
+              { min: 9, max: 10, choices: ['l', 'h', 'l', 'tCD', 'tCD', 'ABCX', 'ABCX', 'dt'], hitback: 'Y' },
+              { min: 11, max: 12, choices: [S2, 'dt', 'tDE', 'tDE', 'ABCX', 'Y', S1, S1], hitback: S1 },
+          ],
+          knockdown: { choices: ['h', 't', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'] },
+          desperate: { choices: [null, null, null, null, S1, S1, S1, S1] },
+      });
+  }());
+  // Bigby
+  const bot7 = (function () {
+      const MOVES = moveset({
+          // Normal
+          A: mStrike(5, 7, { height: StrikeHeight.High }),
+          B: mStrike(6, 5),
+          C: mStrike(7, 4, { height: StrikeHeight.High }),
+          D: mStrike(8, 3, { height: StrikeHeight.Low }),
+          E: mStrike(8, 6, { knockdown: true }),
+          t: mThrow(9, 8),
+          // Defense
+          h: BLOCK_HIGH,
+          l: BLOCK_LOW,
+          d: mDodge(), // Slow dodge
+          // Special
+          X: mStrike(14, 1, { blockDamage: 4, edge: true, backstep: true }),
+          Y: mStrike(9, 6, { blockDamage: 3, knockdown: true }), // pump: +5
+          Z: mThrow(16, 9, { knockdown: false }), // armor: light
+          // Super
+          1: mStrike(10, 9, { super: true, blockDamage: 2 }),
+          2: mThrow(40, 14, { super: true, knockdown: false }),
+      });
+      const S1 = ['1', { adjust: -2 }];
+      const S2 = ['2', { adjust: -3 }];
+      return bot(MOVES, {
+          name: 'Whitestar Grappler',
+          normal: [
+              { min: 5, max: 6, choices: ['l', 'h', 'l', 'h', 't', 't', 'AB', 'DE'], hitback: 't' },
+              { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'Z', 'X', 'ABC', 'DE'], hitback: 't' },
+              { min: 9, max: 10, choices: ['l', 'h', 'l', 'h', 't', 'Z', 'Z', 'XD'], hitback: 'Z' },
+              { min: 11, max: 12, choices: [S2, S2, S2, S1, 'XD', 'dZ', 'dZ', 'ABC'], hitback: S2 },
+          ],
+          knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'DE'] },
+          desperate: { choices: [null, null, null, null, null, null, null, null] },
+      });
+  }());
   const BOTS = {
       M1: bot1,
+      F2: bot7,
   };
 
   //-- State --
@@ -462,9 +534,9 @@
       }
   }
   function renderMove(choice) {
-      const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, unsafe, knockdown, edge, recur, lockdown, drawOnBlock, } = choice;
+      const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep, } = choice;
       const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
-      const gapPosition = type === MoveType.BlockLow ? '50%' : '0';
+      const gapPosition = type === MoveType.BlockHigh ? '50%' : '0';
       const reversal = speed > 10;
       const speedStyle = reversal ? {
           background: '#333',
@@ -494,6 +566,9 @@
       }
       if (drawOnBlock) {
           flags.push(`DRAW`);
+      }
+      if (backstep) {
+          flags.push(`STEP`);
       }
       return `
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
@@ -588,7 +663,7 @@
             <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
 
             <button data-action="pick" data-char="F1">(1) ⚠ Soothing Monk</button>
-            <button data-action="pick" data-char="F2">(2) ⚠ Whitestar Grappler</button>
+            <button data-action="pick" data-char="F2">(2) Whitestar Grappler</button>
             <button data-action="pick" data-char="F3">(3) ⚠ Ancient Hero</button>
             <button data-action="pick" data-char="F4">(4) ⚠ Jandra, the Negator</button>
             <button data-action="pick" data-char="F5">(5) ⚠ Dragonborn Firebat</button>

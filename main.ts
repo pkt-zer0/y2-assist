@@ -118,7 +118,7 @@ function renderMove(choice: Choice) {
     const {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
         height, level, description,
-        unsafe, knockdown, edge, recur, lockdown, drawOnBlock,
+        unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep,
     } = choice;
 
     const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
@@ -142,6 +142,7 @@ function renderMove(choice: Choice) {
     if (recur)       { flags.push(`RECUR`); }
     if (lockdown)    { flags.push(`LOCK`); }
     if (drawOnBlock) { flags.push(`DRAW`); }
+    if (backstep)    { flags.push(`STEP`); }
 
     return `
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
@@ -244,7 +245,7 @@ function renderPicker() {
             <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
 
             <button data-action="pick" data-char="F1">(1) ⚠ Soothing Monk</button>
-            <button data-action="pick" data-char="F2">(2) ⚠ Whitestar Grappler</button>
+            <button data-action="pick" data-char="F2">(2) Whitestar Grappler</button>
             <button data-action="pick" data-char="F3">(3) ⚠ Ancient Hero</button>
             <button data-action="pick" data-char="F4">(4) ⚠ Jandra, the Negator</button>
             <button data-action="pick" data-char="F5">(5) ⚠ Dragonborn Firebat</button>

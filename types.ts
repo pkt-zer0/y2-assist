@@ -29,6 +29,7 @@ export interface Move {
     lockdown?   : boolean; // prevent draw on block
     super?      : boolean;
     unsafe?     : boolean; // hit back if blocked
+    backstep?   : boolean; // beats normal/special of speed 8+
 }
 
 export interface Choice extends Move {

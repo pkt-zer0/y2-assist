@@ -105,6 +105,7 @@ function choiceFromMoves(moves: NamedMove[], overrides: Partial<Choice> = {}): C
         super      : first.super,
         unsafe     : first.unsafe,
         always     : first.super,
+        backstep   : first.backstep,
 
         // Determined by last move
         knockdown: last.knockdown,
