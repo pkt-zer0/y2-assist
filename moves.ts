@@ -9,10 +9,6 @@ export type ChoiceInit = Choice | string | [string, Partial<Choice>];
 
 export type MoveSet = Record<string, NamedMove>;
 
-function sumBy<T>(items: T[], selector: (obj: T) => number) {
-    return items.map(selector).reduce((acc, cur) => acc + cur);
-}
-
 //-- Move creation helpers --
 
 export const MOVE_DEFAULTS = {
@@ -93,18 +89,51 @@ export function moveset(def: Record<string, Move>): MoveSet {
     return namedMoves;
 }
 
-function choiceFromMoves(moves: NamedMove[], overrides: Partial<Choice> = {}): Choice {
+function convertShorthand(moveset: MoveSet, moveString: string, overrides: Partial<Choice>): Choice {
+    const moves = moveString
+        .split('')
+        .filter(c => c !== '+')
+        .map(name => moveset[name]);
+
     const first = moves[0];
     const last  = moves[moves.length - 1];
 
     const hasFollowup = moves.length > 1;
     const description = hasFollowup
-        ? [first.name, ' → ', moves.slice(1).map(_ => _.name).join('')].join('')
-        : first.name;
+        ? [moveString[0], ' → ', moveString.slice(1)].join('')
+        : moveString[0];
     const skipDescription = (
         first.type == MoveType.BlockHigh
         ||  first.type == MoveType.BlockLow
     );
+
+    let totalDamage = 0;
+    let lastMove: NamedMove | null = null;
+    let pumpCount = -1;
+    for (let moveIndex = 0; moveIndex < moveString.length; moveIndex += 1) {
+        const moveChar = moveString[moveIndex];
+        if (moveChar !== '+') {
+            // Regular move
+            const move = moveset[moveChar];
+            totalDamage += move.damage;
+
+            // Reset pump data
+            lastMove = move;
+            pumpCount = -1;
+        } else {
+            // Pump last move
+            pumpCount += 1;
+
+            if (!lastMove) {
+                throw Error('Pump symbol must follow a move');
+            }
+            if (pumpCount >= lastMove.pumpDamage.length) {
+                throw Error(`Move ${lastMove.name} cannot be pumped ${pumpCount + 1} times`);
+            }
+
+            totalDamage += lastMove.pumpDamage[pumpCount];
+        }
+    }
 
     return {
         // Determined by first move
@@ -126,19 +155,14 @@ function choiceFromMoves(moves: NamedMove[], overrides: Partial<Choice> = {}): C
         edge     : last.edge,
 
         // Determined by combo
-        damage     : sumBy(moves, _ => _.damage),
-        adjust     : -(moves.length - 1),
+        damage     : totalDamage,
+        adjust     : -(moveString.length - 1),
         description: skipDescription ? '' : description,
         firstDamage: hasFollowup ? first.damage : 0,
 
         // Allow explicit overrides
         ...overrides,
     };
-}
-
-function convertShorthand(moveset: MoveSet, moveString: string, overrides: Partial<Choice>) {
-    const named = moveString.split('').map(name => moveset[name]);
-    return choiceFromMoves(named, overrides);
 }
 
 export function parseMove(shorthand: ChoiceInit, moveset: MoveSet): Choice {
