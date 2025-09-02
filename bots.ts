@@ -1,6 +1,8 @@
 import { StrikeHeight } from './types.js';
-import { BLOCK_HIGH, BLOCK_LOW } from './choices.js';
+import { bot, BotDefinition } from './bots_types.js';
 import {
+    BLOCK_HIGH,
+    BLOCK_LOW,
     ChoiceInit,
     mDodge,
     moveset,
@@ -9,7 +11,6 @@ import {
     mStrike,
     mThrow,
 } from './moves.js';
-import { bot, BotDefinition } from './bots_types.js';
 
 // Grave
 const bot1: BotDefinition = (function() {

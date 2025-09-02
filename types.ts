@@ -13,7 +13,7 @@ export enum StrikeHeight {
     Low, Mid, High
 }
 
-export interface Move {
+interface CommonMoveProps {
     type        : MoveType;
     damage      : number;
     blockDamage : number;
@@ -32,7 +32,11 @@ export interface Move {
     backstep?   : boolean; // beats normal/special of speed 8+
 }
 
-export interface Choice extends Move {
+export interface Move extends CommonMoveProps {
+    pumpDamage  : number[];
+}
+
+export interface Choice extends CommonMoveProps {
     description : string;
     firstDamage : number;
     adjust      : number;

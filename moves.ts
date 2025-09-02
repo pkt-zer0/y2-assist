@@ -1,4 +1,4 @@
-import { Move, Choice, MoveType, StrikeHeight } from './types.js';
+import { Choice, Move, MoveType, StrikeHeight } from './types.js';
 
 interface NamedMove extends Move {
     name: string;
@@ -20,7 +20,21 @@ export const MOVE_DEFAULTS = {
     speed: 0,
     level: 0,
     blockDamage: 0,
+    pumpDamage: [],
     height: StrikeHeight.Mid,
+};
+
+export const BLOCK_LOW: Move = {
+    ...MOVE_DEFAULTS,
+    type: MoveType.BlockLow,
+    drawOnBlock: true,
+    recur: true,
+};
+export const BLOCK_HIGH: Move = {
+    ...MOVE_DEFAULTS,
+    type: MoveType.BlockHigh,
+    drawOnBlock: true,
+    recur: true,
 };
 
 export function mStrike(
