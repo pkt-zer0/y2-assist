@@ -136,9 +136,9 @@ function renderMove(choice: Choice) {
     const levelText = Array(level).fill('I').join('');
 
     const flags: string[] = [];
-    if (unsafe)      { flags.push(`/!\\`); }
+    if (unsafe)      { flags.push(`⚠`); }
     if (knockdown)   { flags.push(`KD`); }
-    if (edge)        { flags.push(`(+)`); }
+    if (edge)        { flags.push(`⊕`); }
     if (recur)       { flags.push(`RECUR`); }
     if (lockdown)    { flags.push(`LOCK`); }
     if (drawOnBlock) { flags.push(`DRAW`); }
