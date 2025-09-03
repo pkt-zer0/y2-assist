@@ -84,8 +84,45 @@ const bot7: BotDefinition = (function() {
     });
 }());
 
+// Setsuki
+const bot2: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(2, 9, { height: StrikeHeight.Low  }),
+        B: mStrike(3, 8, { height: StrikeHeight.Low  }),
+        C: mStrike(4, 7, { height: StrikeHeight.High }),
+        D: mStrike(5, 6, { height: StrikeHeight.High  }),
+        E: mStrike(6, 5),
+        t: mThrow (6, 6),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(),
+        // Special
+        X: mStrike(5,  8, { blockDamage: 1, height: StrikeHeight.High }),
+        Y: mStrike(1,  9, { blockDamage: 1, pumpDamage: [4,4] }),
+        Z: mStrike(5,  7, { blockDamage: 2, pumpDamage: [3,3] }),
+        // Super
+        1: mStrike(17, 9, { super: true, meter: 2, blockDamage: 3 }),
+        2: mDodge (       { super: true, meter: 2, damage: 30 }), // Fully pumped
+    });
+
+    return bot(MOVES, {
+        name: 'Fox Primus',
+        normal: [
+            { min: 5,  max: 6,  choices: ['tB', 'tC' , 'AB'     , 'AB'     , 'AB'    , 'CD'    , 'CD'     , 'dt'   ], hitback: 'tC'     },
+            { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'      , 't'      , 'BCD'   , 'CDE'   , 'dY++'   , 'dY++' ], hitback: 'CDE'    },
+            { min: 9,  max: 10, choices: ['l' , 'h'  , 'l'      , 'tCDE'   , 'tCDE'  , 'ABXDE' , 'CDXDE'  , 'd1'   ], hitback: 'tCDE'   },
+            { min: 11, max: 12, choices: ['2' , '2'  , 'tZ++DE' , 'tZ++DE' , 'ABCD1' , 'CDE1'  , 'Y++DE1' , '1'    ], hitback: 'Y++DE1' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'BCD'] },
+        desperate: { choices: [null, null, null, null, null, null, null, null] },
+    });
+}());
+
 
 export const BOTS: Record<string, BotDefinition> = {
     M1: bot1,
+    M2: bot2,
     F2: bot7,
 };

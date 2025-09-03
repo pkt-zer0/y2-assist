@@ -239,7 +239,7 @@ function renderPicker() {
     return `
         <div class="screen picker">
             <button data-action="pick" data-char="M1">(1) Glass Monk</button>
-            <button data-action="pick" data-char="M2">(2) ⚠ Fox Primus</button>
+            <button data-action="pick" data-char="M2">(2) Fox Primus</button>
             <button data-action="pick" data-char="M3">(3) ⚠ Colossus</button>
             <button data-action="pick" data-char="M4">(4) ⚠ Twilight Baron</button>
             <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
