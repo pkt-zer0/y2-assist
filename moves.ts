@@ -181,3 +181,21 @@ export function parseMove(shorthand: ChoiceInit, moveset: MoveSet): Choice {
     }
     throw RangeError('Invalid shorthand descriptor: ' + shorthand);
 }
+
+/** Hitback moves are a bit different, apply adjustments here */
+export function asHitback(original: Choice): Choice {
+    const hitback = {
+        ...original,
+        // Remove data irrelevant for hitback
+        always: false,
+        unsafe: false,
+        speed: 0,
+        blockDamage: 0,
+        firstDamage: 0,
+    };
+    // Normal moves count as an extra card spent, super moves only consider meter
+    if (!hitback.super) {
+        hitback.adjust -= 1;
+    }
+    return hitback;
+}
