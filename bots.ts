@@ -31,12 +31,9 @@ const bot1: BotDefinition = (function() {
         Y: mStrike(10, 11,  { blockDamage: 2, unsafe: true }),
         Z: mStrike(7, 7,    { blockDamage: 1, height: StrikeHeight.High }),
         // Super
-        1: mStrike(20, 15, { super: true, blockDamage: 1, unsafe: true }),
-        2: mDodge({ super: true, damage: 30 }),
+        1: mStrike(20, 15, { super: true, meter: 2, blockDamage: 1, unsafe: true }),
+        2: mDodge(         { super: true, meter: 2, damage: 30 }),
     });
-
-    const S1: ChoiceInit = ['1', { adjust: -2 }];
-    const S2: ChoiceInit = ['2', { adjust: -2 }];
 
     return bot(MOVES, {
         name: 'Glass Monk',
@@ -44,10 +41,10 @@ const bot1: BotDefinition = (function() {
             { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 't'   , 'BZ'  , 'ZC'  , 'X'    , 'X' ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'ABC' , 'Y'   , 'X'    , 'X' ], hitback: 'Y' },
             { min: 9,  max: 10, choices: ['l' , 'h'  , 'l'   , 'tCD' , 'tCD' , 'ABCX', 'ABCX' , 'dt'], hitback: 'Y' },
-            { min: 11, max: 12, choices: [S2  , 'dt' , 'tDE' , 'tDE' , 'ABCX', 'Y'   , S1     , S1  ], hitback: S1  },
+            { min: 11, max: 12, choices: ['2' , 'dt' , 'tDE' , 'tDE' , 'ABCX', 'Y'   , '1'    , '1' ], hitback: '1' },
         ],
         knockdown: { choices: ['h', 't', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'] },
-        desperate: { choices: [null, null, null, null, S1, S1, S1, S1] },
+        desperate: { choices: [null, null, null, null, '1', '1', '1', '1'] },
     });
 }());
 
@@ -67,15 +64,12 @@ const bot7: BotDefinition = (function() {
         d: mDodge(), // Slow dodge
         // Special
         X: mStrike(14, 1, { blockDamage: 4, edge: true, backstep: true }),
-        Y: mStrike(9,  6, { blockDamage: 3, knockdown: true }), // pump: +5
+        Y: mStrike(9,  6, { blockDamage: 3, pumpDamage: [5], knockdown: true }),
         Z: mThrow (16, 9, { knockdown: false }), // armor: light
         // Super
-        1: mStrike(10, 9,  { super: true, blockDamage: 2 }),
-        2: mThrow (40, 14, { super: true, knockdown: false }),
+        1: mStrike(10, 9,  { super: true, meter: 2, blockDamage: 2 }),
+        2: mThrow (40, 14, { super: true, meter: 3, knockdown: false }),
     });
-
-    const S1: ChoiceInit = ['1', { adjust: -2 }];
-    const S2: ChoiceInit = ['2', { adjust: -3 }];
 
     return bot(MOVES, {
         name: 'Whitestar Grappler',
@@ -83,7 +77,7 @@ const bot7: BotDefinition = (function() {
             { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 't'   , 'AB'   , 'DE'   ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'Z'   , 'X'   , 'ABC'  , 'DE'   ], hitback: 't' },
             { min: 9,  max: 10, choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 'Z'   , 'Z'    , 'XD'   ], hitback: 'Z' },
-            { min: 11, max: 12, choices: [S2  , S2   , S2    , S1    , 'XD'  , 'dZ'  , 'dZ'   , 'ABC'  ], hitback: S2  },
+            { min: 11, max: 12, choices: ['2' , '2'  , '2'   , '1'   , 'XD'  , 'dZ'  , 'dZ'   , 'ABC'  ], hitback: '2' },
         ],
         knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'DE'] },
         desperate: { choices: [null, null, null, null, null, null, null, null] },

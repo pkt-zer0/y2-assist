@@ -34,6 +34,7 @@ interface CommonMoveProps {
 
 export interface Move extends CommonMoveProps {
     pumpDamage  : number[];
+    meter       : number; // super meter used
 }
 
 export interface Choice extends CommonMoveProps {

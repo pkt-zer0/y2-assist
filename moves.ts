@@ -17,6 +17,7 @@ export const MOVE_DEFAULTS = {
     level: 0,
     blockDamage: 0,
     pumpDamage: [],
+    meter: 0,
     height: StrikeHeight.Mid,
 };
 
@@ -110,11 +111,14 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
     let totalDamage = 0;
     let lastMove: NamedMove | null = null;
     let pumpCount = -1;
+    let totalAdjust = 0;
     for (let moveIndex = 0; moveIndex < moveString.length; moveIndex += 1) {
         const moveChar = moveString[moveIndex];
+        const move = moveset[moveChar];
+
+        // Update damage
         if (moveChar !== '+') {
             // Regular move
-            const move = moveset[moveChar];
             totalDamage += move.damage;
 
             // Reset pump data
@@ -133,6 +137,11 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
 
             totalDamage += lastMove.pumpDamage[pumpCount];
         }
+
+        // Update handsize adjustment
+        totalAdjust += move?.super
+            ? move.meter // Super moves always cost meter
+            : (moveIndex === 0 ? 0 : 1); // First card is free!
     }
 
     return {
@@ -156,7 +165,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
 
         // Determined by combo
         damage     : totalDamage,
-        adjust     : -(moveString.length - 1),
+        adjust     : -totalAdjust,
         description: skipDescription ? '' : description,
         firstDamage: hasFollowup ? first.damage : 0,
 
