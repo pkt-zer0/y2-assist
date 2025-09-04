@@ -80,7 +80,6 @@ const bot7: BotDefinition = (function() {
             { min: 11, max: 12, choices: ['2' , '2'  , '2'   , '1'   , 'XD'  , 'dZ'  , 'dZ'   , 'ABC'  ], hitback: '2' },
         ],
         knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'DE'] },
-        desperate: { choices: [null, null, null, null, null, null, null, null] },
     });
 }());
 
@@ -116,7 +115,6 @@ const bot2: BotDefinition = (function() {
             { min: 11, max: 12, choices: ['2' , '2'  , 'tZ++DE' , 'tZ++DE' , 'ABCD1' , 'CDE1'  , 'Y++DE1' , '1'    ], hitback: 'Y++DE1' },
         ],
         knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'BCD'] },
-        desperate: { choices: [null, null, null, null, null, null, null, null] },
     });
 }());
 

@@ -34,6 +34,13 @@ const changeCharacter = (data: DOMStringMap) => {
         chosenBot = BOTS[chosenBotID];
         showPicker = false;
         save();
+
+        // Reset match state
+        handSize = 9;
+        choiceIndex = 0;
+        mode = '';
+        hitback = false;
+        desperate = false;
     }
 };
 
@@ -169,7 +176,7 @@ function getChoiceRow(bot: BotDefinition): ChoiceRow {
     let row: ChoiceRow = bot.normal[rowIndex];
 
     // Mode-specific overrides
-    if (desperate) {
+    if (bot.desperate && desperate) {
         row = applyOverride(row, bot.desperate);
     }
     if (mode === 'knockdown') {
@@ -209,6 +216,8 @@ function renderBot(bot: BotDefinition | undefined) {
     const isKnockdown = mode == 'knockdown';
     const choiceText = hitback ? '*' : choiceIndex + 1;
 
+    const showDesperate = !!bot.desperate;
+
     return `
         <div class="screen main">
             <div class="header">
@@ -218,7 +227,9 @@ function renderBot(bot: BotDefinition | undefined) {
             </div>
             <div class="move"> ${renderMove(choice)} </div>
             <div class="toggles">
-                <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+                ${when(showDesperate, `
+                    <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+                `)}
                 <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
                 <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
             </div>
