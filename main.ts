@@ -1,6 +1,6 @@
 import { BOTS } from './bots.js';
 import { applyOverride, BotDefinition, ChoiceRow } from './bots_types.js';
-import { Choice, MoveType, StrikeHeight } from './types.js';
+import { ArmorType, Choice, MoveType, StrikeHeight } from './types.js';
 
 //-- State --
 
@@ -23,6 +23,7 @@ const handsizeDown = () => { handSize    = clamp(handSize - 1, 5, 12); };
 const handsizeUp   = () => { handSize    = clamp(handSize + 1, 5, 12); };
 
 const toggleKnockdown = () => { mode      = mode ? '' : 'knockdown'; };
+const toggleWakeup    = () => { mode      = mode ? '' : 'wakeup'; };
 const toggleHitback   = () => { hitback   = !hitback; };
 const toggleDesperate = () => { desperate = !desperate; };
 
@@ -117,14 +118,13 @@ function heightStyle(height: StrikeHeight) {
         case StrikeHeight.Low : return { top: '55%' };
         case StrikeHeight.Mid : return { display: 'none' };
         case StrikeHeight.High: return { top: '25%' };
-
     }
 }
 
 function renderMove(choice: Choice) {
     const {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
-        height, level, description,
+        height, level, description, armor,
         unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep,
     } = choice;
 
@@ -150,6 +150,10 @@ function renderMove(choice: Choice) {
     if (lockdown)    { flags.push(`LOCK`); }
     if (drawOnBlock) { flags.push(`DRAW`); }
     if (backstep)    { flags.push(`STEP`); }
+
+    if (armor === ArmorType.Light)  { flags.push(`[L]`); }
+    if (armor === ArmorType.Medium) { flags.push(`[M]`); }
+    if (armor === ArmorType.Heavy)  { flags.push(`[H]`); }
 
     return `
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
@@ -181,6 +185,9 @@ function getChoiceRow(bot: BotDefinition): ChoiceRow {
     }
     if (mode === 'knockdown') {
         row = applyOverride(row, bot.knockdown);
+    }
+    if (bot.wakeup && mode === 'wakeup') {
+        row = applyOverride(row, bot.wakeup);
     }
 
     return row;
@@ -214,9 +221,11 @@ function renderBot(bot: BotDefinition | undefined) {
 
     const choice = getChoice(bot);
     const isKnockdown = mode == 'knockdown';
+    const isWakeup    = mode == 'wakeup';
     const choiceText = hitback ? '*' : choiceIndex + 1;
 
     const showDesperate = !!bot.desperate;
+    const showWakeup    = !!bot.wakeup;
 
     return `
         <div class="screen main">
@@ -229,6 +238,9 @@ function renderBot(bot: BotDefinition | undefined) {
             <div class="toggles">
                 ${when(showDesperate, `
                     <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+                `)}
+                ${when(showWakeup, `
+                    <button data-action="wakeup" class="${toggleClass(isWakeup)}"> Wakeup </button>
                 `)}
                 <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
                 <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
@@ -251,7 +263,7 @@ function renderPicker() {
         <div class="screen picker">
             <button data-action="pick" data-char="M1">(1) Glass Monk</button>
             <button data-action="pick" data-char="M2">(2) Fox Primus</button>
-            <button data-action="pick" data-char="M3">(3) ⚠ Colossus</button>
+            <button data-action="pick" data-char="M3">(3) Colossus</button>
             <button data-action="pick" data-char="M4">(4) ⚠ Twilight Baron</button>
             <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
 
@@ -277,6 +289,7 @@ function main() {
         "ArrowDown" : handsizeUp,
         "r"         : choiceRandom,
         "k"         : toggleKnockdown,
+        "w"         : toggleWakeup,
         "h"         : toggleHitback,
         "d"         : toggleDesperate,
     };
@@ -296,6 +309,7 @@ function main() {
         down : handsizeDown,
         // Toggles
         knockdown : toggleKnockdown,
+        wakeup    : toggleWakeup,
         hitback   : toggleHitback,
         desperate : toggleDesperate,
         // Character picker

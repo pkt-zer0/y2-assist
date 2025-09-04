@@ -13,6 +13,13 @@ export enum StrikeHeight {
     Low, Mid, High
 }
 
+export enum ArmorType {
+    None,
+    Light,  // vs ABC normals
+    Medium, // vs Normal
+    Heavy,  // vs Normal and Special
+}
+
 interface CommonMoveProps {
     type        : MoveType;
     damage      : number;
@@ -20,6 +27,7 @@ interface CommonMoveProps {
     speed       : number;
     level       : number; // Projectiles only
     height      : StrikeHeight;
+    armor       : ArmorType;
 
     // Various optional flags
     recur?      : boolean  // draw if not hit

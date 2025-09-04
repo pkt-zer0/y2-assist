@@ -1,4 +1,4 @@
-import { Choice, Move, MoveType, StrikeHeight } from './types.js';
+import { ArmorType, Choice, Move, MoveType, StrikeHeight } from './types.js';
 
 interface NamedMove extends Move {
     name: string;
@@ -19,6 +19,7 @@ export const MOVE_DEFAULTS = {
     pumpDamage: [],
     meter: 0,
     height: StrikeHeight.Mid,
+    armor: ArmorType.None,
 };
 
 export const BLOCK_LOW: Move = {
@@ -158,6 +159,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         unsafe     : first.unsafe,
         always     : first.super,
         backstep   : first.backstep,
+        armor      : first.armor,
 
         // Determined by last move
         knockdown: last.knockdown,

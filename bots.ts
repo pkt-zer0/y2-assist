@@ -1,9 +1,8 @@
-import { StrikeHeight } from './types.js';
+import { ArmorType, StrikeHeight } from './types.js';
 import { bot, BotDefinition } from './bots_types.js';
 import {
     BLOCK_HIGH,
     BLOCK_LOW,
-    ChoiceInit,
     mDodge,
     moveset,
     MoveSet,
@@ -90,7 +89,7 @@ const bot2: BotDefinition = (function() {
         A: mStrike(2, 9, { height: StrikeHeight.Low  }),
         B: mStrike(3, 8, { height: StrikeHeight.Low  }),
         C: mStrike(4, 7, { height: StrikeHeight.High }),
-        D: mStrike(5, 6, { height: StrikeHeight.High  }),
+        D: mStrike(5, 6, { height: StrikeHeight.High }),
         E: mStrike(6, 5),
         t: mThrow (6, 6),
         // Defense
@@ -118,9 +117,46 @@ const bot2: BotDefinition = (function() {
     });
 }());
 
+// Rook
+const bot3: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(5, 7, { height: StrikeHeight.Low, knockdown: true, armor: ArmorType.Medium }),
+        C: mStrike(6, 5, { height: StrikeHeight.Low, armor: ArmorType.Medium }),
+        D: mStrike(7, 4, { armor: ArmorType.Medium }),
+        E: mStrike(8, 3, { height: StrikeHeight.High, armor: ArmorType.Medium }),
+        F: mStrike(9, 2, { height: StrikeHeight.High, armor: ArmorType.Medium }),
+        t: mThrow (12, 8),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(), // Instead of entangling vines
+        // Special
+        X: mStrike(6,  6, { blockDamage: 2 }),
+        Y: mStrike(14, 5, { blockDamage: 1, armor: ArmorType.Heavy }), // Fully pumped, for free
+        Z: mThrow (16, 9, { knockdown: false, armor: ArmorType.Light }),
+        // Super
+        1: mStrike(20, 12, { super: true, meter: 3, blockDamage: 3 }), // Fully pumped
+        2: mThrow (50, 15, { super: true, meter: 3, knockdown: false }),
+    });
+
+    return bot(MOVES, {
+        name: 'Colossus',
+        normal: [
+            { min: 5,  max: 6,  choices: ['l' , 'h' , 'l' , 'h' , 't' , 't'   , 'A'   , 'EF'  ], hitback: 't' },
+            { min: 7,  max: 8,  choices: ['l' , 'h' , 'l' , 't' , 'Z' , 'AXD' , 'CDE' , 'EF'  ], hitback: 't' },
+            { min: 9,  max: 10, choices: ['l' , 'h' , 'l' , 'h' , 't' , 'Z'   , 'Z'   , 'AXD' ], hitback: 'Z' },
+            { min: 11, max: 12, choices: ['2' , '2' , '2' , '1' , 'Y' , 'dZ'  , 'dZ'  , 'EF'  ], hitback: '2' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 't', 'Y'  , 'Y' , '1' , '1'] },
+        wakeup:    { choices: ['l', 'h', 't', 't', 'CDE', 'EF', 'EF', 'Z'] },
+    });
+}());
+
 
 export const BOTS: Record<string, BotDefinition> = {
     M1: bot1,
     M2: bot2,
+    M3: bot3,
     F2: bot7,
 };

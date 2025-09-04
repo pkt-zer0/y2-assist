@@ -22,6 +22,7 @@ export interface BotDefinition {
     normal     : MoveChoiceRow[];
     knockdown  : ChoiceRow;
     desperate? : OverrideRow
+    wakeup?    : ChoiceRow;
 }
 
 export function applyOverride(base: ChoiceRow, override: OverrideRow): ChoiceRow {
@@ -41,6 +42,7 @@ export type BotShorthand = {
         min: number, max: number, choices: ChoiceInit[], hitback: ChoiceInit
     }>,
     knockdown: { choices: ChoiceInit[] },
+    wakeup?: { choices: ChoiceInit[] },
     desperate?: { choices: Array<null | ChoiceInit> },
 };
 
@@ -62,6 +64,9 @@ export function bot(moveset: MoveSet, init: BotShorthand): BotDefinition {
         },
         desperate: init.desperate ? {
             choices: init.desperate.choices.map(overrideParser),
-        }: undefined
+        } : undefined,
+        wakeup: init.wakeup ? {
+            choices: init.wakeup.choices.map(moveParser),
+        } : undefined,
     };
 }

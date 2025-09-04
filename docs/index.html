@@ -173,6 +173,13 @@
       StrikeHeight[StrikeHeight["Mid"] = 1] = "Mid";
       StrikeHeight[StrikeHeight["High"] = 2] = "High";
   })(StrikeHeight || (StrikeHeight = {}));
+  var ArmorType;
+  (function (ArmorType) {
+      ArmorType[ArmorType["None"] = 0] = "None";
+      ArmorType[ArmorType["Light"] = 1] = "Light";
+      ArmorType[ArmorType["Medium"] = 2] = "Medium";
+      ArmorType[ArmorType["Heavy"] = 3] = "Heavy";
+  })(ArmorType || (ArmorType = {}));
   /* Move description shorthand (case sensitive):
     - A..J : normals
     - t, l, h, b, d: throw, low/high/full block, dodge
@@ -190,6 +197,7 @@
       pumpDamage: [],
       meter: 0,
       height: StrikeHeight.Mid,
+      armor: ArmorType.None,
   };
   const BLOCK_LOW = {
       ...MOVE_DEFAULTS,
@@ -308,6 +316,7 @@
           unsafe: first.unsafe,
           always: first.super,
           backstep: first.backstep,
+          armor: first.armor,
           // Determined by last move
           knockdown: last.knockdown,
           edge: last.edge,
@@ -377,9 +386,12 @@
           knockdown: {
               choices: init.knockdown.choices.map(moveParser),
           },
-          desperate: {
+          desperate: init.desperate ? {
               choices: init.desperate.choices.map(overrideParser),
-          }
+          } : undefined,
+          wakeup: init.wakeup ? {
+              choices: init.wakeup.choices.map(moveParser),
+          } : undefined,
       };
   }
 
@@ -448,7 +460,6 @@
               { min: 11, max: 12, choices: ['2', '2', '2', '1', 'XD', 'dZ', 'dZ', 'ABC'], hitback: '2' },
           ],
           knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'DE'] },
-          desperate: { choices: [null, null, null, null, null, null, null, null] },
       });
   }());
   // Setsuki
@@ -482,12 +493,46 @@
               { min: 11, max: 12, choices: ['2', '2', 'tZ++DE', 'tZ++DE', 'ABCD1', 'CDE1', 'Y++DE1', '1'], hitback: 'Y++DE1' },
           ],
           knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'BCD'] },
-          desperate: { choices: [null, null, null, null, null, null, null, null] },
+      });
+  }());
+  // Rook
+  const bot3 = (function () {
+      const MOVES = moveset({
+          // Normal
+          A: mStrike(5, 7, { height: StrikeHeight.Low, knockdown: true, armor: ArmorType.Medium }),
+          C: mStrike(6, 5, { height: StrikeHeight.Low, armor: ArmorType.Medium }),
+          D: mStrike(7, 4, { armor: ArmorType.Medium }),
+          E: mStrike(8, 3, { height: StrikeHeight.High, armor: ArmorType.Medium }),
+          F: mStrike(9, 2, { height: StrikeHeight.High, armor: ArmorType.Medium }),
+          t: mThrow(12, 8),
+          // Defense
+          h: BLOCK_HIGH,
+          l: BLOCK_LOW,
+          d: mDodge(), // Instead of entangling vines
+          // Special
+          X: mStrike(6, 6, { blockDamage: 2 }),
+          Y: mStrike(14, 5, { blockDamage: 1, armor: ArmorType.Heavy }), // Fully pumped, for free
+          Z: mThrow(16, 9, { knockdown: false, armor: ArmorType.Light }),
+          // Super
+          1: mStrike(20, 12, { super: true, meter: 3, blockDamage: 3 }), // Fully pumped
+          2: mThrow(50, 15, { super: true, meter: 3, knockdown: false }),
+      });
+      return bot(MOVES, {
+          name: 'Colossus',
+          normal: [
+              { min: 5, max: 6, choices: ['l', 'h', 'l', 'h', 't', 't', 'A', 'EF'], hitback: 't' },
+              { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'Z', 'AXD', 'CDE', 'EF'], hitback: 't' },
+              { min: 9, max: 10, choices: ['l', 'h', 'l', 'h', 't', 'Z', 'Z', 'AXD'], hitback: 'Z' },
+              { min: 11, max: 12, choices: ['2', '2', '2', '1', 'Y', 'dZ', 'dZ', 'EF'], hitback: '2' },
+          ],
+          knockdown: { choices: ['l', 'h', 'l', 't', 'Y', 'Y', '1', '1'] },
+          wakeup: { choices: ['l', 'h', 't', 't', 'CDE', 'EF', 'EF', 'Z'] },
       });
   }());
   const BOTS = {
       M1: bot1,
       M2: bot2,
+      M3: bot3,
       F2: bot7,
   };
 
@@ -507,6 +552,7 @@
   const handsizeDown = () => { handSize = clamp(handSize - 1, 5, 12); };
   const handsizeUp = () => { handSize = clamp(handSize + 1, 5, 12); };
   const toggleKnockdown = () => { mode = mode ? '' : 'knockdown'; };
+  const toggleWakeup = () => { mode = mode ? '' : 'wakeup'; };
   const toggleHitback = () => { hitback = !hitback; };
   const toggleDesperate = () => { desperate = !desperate; };
   const displayPicker = () => { showPicker = true; };
@@ -517,6 +563,12 @@
           chosenBot = BOTS[chosenBotID];
           showPicker = false;
           save();
+          // Reset match state
+          handSize = 9;
+          choiceIndex = 0;
+          mode = '';
+          hitback = false;
+          desperate = false;
       }
   };
   //-- Persistence --
@@ -590,7 +642,7 @@
       }
   }
   function renderMove(choice) {
-      const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep, } = choice;
+      const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, armor, unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep, } = choice;
       const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
       const gapPosition = type === MoveType.BlockHigh ? '50%' : '0';
       const reversal = speed > 10;
@@ -626,6 +678,15 @@
       if (backstep) {
           flags.push(`STEP`);
       }
+      if (armor === ArmorType.Light) {
+          flags.push(`[L]`);
+      }
+      if (armor === ArmorType.Medium) {
+          flags.push(`[M]`);
+      }
+      if (armor === ArmorType.Heavy) {
+          flags.push(`[H]`);
+      }
       return `
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
             ${!damage ? '' : damage}
@@ -649,11 +710,14 @@
       const rowIndex = Math.floor((handSize - 5) / 2);
       let row = bot.normal[rowIndex];
       // Mode-specific overrides
-      if (desperate) {
+      if (bot.desperate && desperate) {
           row = applyOverride(row, bot.desperate);
       }
       if (mode === 'knockdown') {
           row = applyOverride(row, bot.knockdown);
+      }
+      if (bot.wakeup && mode === 'wakeup') {
+          row = applyOverride(row, bot.wakeup);
       }
       return row;
   }
@@ -683,7 +747,10 @@
       }
       const choice = getChoice(bot);
       const isKnockdown = mode == 'knockdown';
+      const isWakeup = mode == 'wakeup';
       const choiceText = hitback ? '*' : choiceIndex + 1;
+      const showDesperate = !!bot.desperate;
+      const showWakeup = !!bot.wakeup;
       return `
         <div class="screen main">
             <div class="header">
@@ -693,7 +760,12 @@
             </div>
             <div class="move"> ${renderMove(choice)} </div>
             <div class="toggles">
-                <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+                ${when(showDesperate, `
+                    <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
+                `)}
+                ${when(showWakeup, `
+                    <button data-action="wakeup" class="${toggleClass(isWakeup)}"> Wakeup </button>
+                `)}
                 <button data-action="knockdown" class="${toggleClass(isKnockdown)}"> Knockdown </button>
                 <button data-action="hitback" class="${toggleClass(hitback)}"> Hitback </button>
             </div>
@@ -714,7 +786,7 @@
         <div class="screen picker">
             <button data-action="pick" data-char="M1">(1) Glass Monk</button>
             <button data-action="pick" data-char="M2">(2) Fox Primus</button>
-            <button data-action="pick" data-char="M3">(3) ⚠ Colossus</button>
+            <button data-action="pick" data-char="M3">(3) Colossus</button>
             <button data-action="pick" data-char="M4">(4) ⚠ Twilight Baron</button>
             <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
 
@@ -736,6 +808,7 @@
           "ArrowDown": handsizeUp,
           "r": choiceRandom,
           "k": toggleKnockdown,
+          "w": toggleWakeup,
           "h": toggleHitback,
           "d": toggleDesperate,
       };
@@ -754,6 +827,7 @@
           down: handsizeDown,
           // Toggles
           knockdown: toggleKnockdown,
+          wakeup: toggleWakeup,
           hitback: toggleHitback,
           desperate: toggleDesperate,
           // Character picker
