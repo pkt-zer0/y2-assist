@@ -261,17 +261,17 @@ function renderBot(bot: BotDefinition | undefined) {
 function renderPicker() {
     return `
         <div class="screen picker">
-            <button data-action="pick" data-char="M1">(1) Glass Monk</button>
-            <button data-action="pick" data-char="M2">(2) Fox Primus</button>
-            <button data-action="pick" data-char="M3">(3) Colossus</button>
-            <button data-action="pick" data-char="M4">(4) Twilight Baron</button>
-            <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
+            <button data-action="pick" data-char="M1">Glass Monk <br> ★☆☆☆☆</button>
+            <button data-action="pick" data-char="M2">Fox Primus <br> ★★☆☆☆</button>
+            <button data-action="pick" data-char="M3">Colossus <br> ★★★☆☆</button>
+            <button data-action="pick" data-char="M4">Twilight Baron <br> ★★★★☆</button>
+            <button data-action="pick" data-char="M5">Dragonborn Centurion <br> ★★★★★</button>
 
-            <button data-action="pick" data-char="F1">(1) ⚠ Soothing Monk</button>
-            <button data-action="pick" data-char="F2">(2) Whitestar Grappler</button>
-            <button data-action="pick" data-char="F3">(3) ⚠ Ancient Hero</button>
-            <button data-action="pick" data-char="F4">(4) ⚠ Jandra, the Negator</button>
-            <button data-action="pick" data-char="F5">(5) ⚠ Dragonborn Firebat</button>
+            <button data-action="pick" data-char="F1">Soothing Monk <br> ★☆☆☆☆</button>
+            <button data-action="pick" data-char="F2">Whitestar Grappler <br> ★★☆☆☆</button>
+            <button data-action="pick" data-char="F3">Ancient Hero <br> ★★★☆☆</button>
+            <button data-action="pick" data-char="F4">Jandra, the Negator <br> ★★★★☆</button>
+            <button data-action="pick" data-char="F5">Dragonborn Firebat <br> ★★★★★</button>
         </div>
     `;
 }
