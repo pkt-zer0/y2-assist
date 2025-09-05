@@ -3,6 +3,7 @@ import { bot, BotDefinition } from './bots_types.js';
 import {
     BLOCK_HIGH,
     BLOCK_LOW,
+    ChoiceInit,
     mDodge,
     moveset,
     MoveSet,
@@ -153,10 +154,49 @@ const bot3: BotDefinition = (function() {
     });
 }());
 
+// DeGrey
+const bot4: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(4, 8, { height: StrikeHeight.Low }),
+        B: mStrike(4, 7),
+        D: mStrike(5, 6, { height: StrikeHeight.Low }),
+        E: mStrike(6, 5, { height: StrikeHeight.Low }),
+        F: mStrike(7, 4, { height: StrikeHeight.High }),
+        t: mThrow (8, 4),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(),
+        // Special
+        X: mStrike    (7,  2, { blockDamage: 2, backstep: true }),
+        Y: mStrike    (14, 1, { blockDamage: 4, backstep: true, knockdown: true, unsafe: true }),
+        Z: mProjectile(1,  4, { blockDamage: 1, level: 2, edge: true, recur: false, lockdown: false }),
+        // Super
+        1: mDodge ({ super: true, meter: 0, recur: true }),
+        2: mStrike(20, 11, { super: true, meter: 2, blockDamage: 2 }),
+    });
+
+    const S1DEF: ChoiceInit = ['1DEF', { always: false }];
+    const S1EF2: ChoiceInit = ['1EF2', { always: false }];
+
+    return bot(MOVES, {
+        name: 'Twilight Baron',
+        normal: [
+            { min: 5,  max: 6,  choices: ['l'    , 'h'    , 'l'    , 't'   , 't'   , 'AB'    , 'AB'    , 'Y'     ], hitback: 't' },
+            { min: 7,  max: 8,  choices: ['l'    , 'h'    , 'l'    , 't'   , 'YEF' , 'YEF'   , 'Y'     , 'Y'     ], hitback: 'Y' },
+            { min: 9,  max: 10, choices: ['l'    , 'h'    , 'tDE'  , 'tDE' , 'YEF' , 'YEF'   , S1DEF   , 'ZDEF'  ], hitback: 'Y' },
+            { min: 11, max: 12, choices: [S1EF2  , S1DEF  , 'tDE'  , 'tDE' , 'YEF' , 'YEF'   , '2'     , 'ZEF2'  ], hitback: '2' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 'h', 't'  , 'EF' , '2'  , '2'  ] },
+        wakeup:    { choices: ['l', 'h', 't', 't', 'EF' , 'FZF', 'FZF', 'YEF'] },
+    });
+}());
 
 export const BOTS: Record<string, BotDefinition> = {
     M1: bot1,
     M2: bot2,
     M3: bot3,
+    M4: bot4,
     F2: bot7,
 };

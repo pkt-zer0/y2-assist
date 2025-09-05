@@ -195,11 +195,14 @@ export function parseMove(shorthand: ChoiceInit, moveset: MoveSet): Choice {
 
 /** Hitback moves are a bit different, apply adjustments here */
 export function asHitback(original: Choice): Choice {
-    const hitback = {
+    const hitback: Choice = {
         ...original,
         // Remove data irrelevant for hitback
         always: false,
         unsafe: false,
+        backstep: false,
+        recur: false,
+        lockdown: false,
         speed: 0,
         blockDamage: 0,
         firstDamage: 0,
