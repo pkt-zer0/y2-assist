@@ -10,7 +10,7 @@ let mode = '';
 let hitback = false;
 let desperate = false;
 
-let chosenBotID: string | undefined = undefined;
+let chosenBotID: number | undefined = undefined;
 let chosenBot: BotDefinition | undefined = undefined;
 let showPicker = true;
 
@@ -31,7 +31,7 @@ const displayPicker   = () => { showPicker = true; };
 const changeCharacter = (data: DOMStringMap) => {
     const chosen = data.char;
     if (chosen) {
-        chosenBotID = chosen;
+        chosenBotID = parseInt(chosen, 10);
         chosenBot = BOTS[chosenBotID];
         showPicker = false;
         save();
@@ -203,7 +203,7 @@ function getChoice(bot: BotDefinition): Choice {
 
 function renderContent() {
     if (showPicker) {
-        return renderPicker();
+        return renderPicker(BOTS);
     } else {
         return renderBot(chosenBot);
     }
@@ -258,21 +258,21 @@ function renderBot(bot: BotDefinition | undefined) {
     `;
 }
 
-function renderPicker() {
+function starsFor(difficulty: number) {
+    const filler = 5 - difficulty;
+    return '★'.repeat(difficulty) + '☆'.repeat(filler);
+}
+
+function renderPicker(bots: BotDefinition[]) {
     return `
         <div class="screen picker">
-            <button data-action="pick" data-char="M1">Glass Monk <br> ★☆☆☆☆</button>
-            <button data-action="pick" data-char="M2">Fox Primus <br> ★★☆☆☆</button>
-            <button data-action="pick" data-char="M3">Colossus <br> ★★★☆☆</button>
-            <button data-action="pick" data-char="M4">Twilight Baron <br> ★★★★☆</button>
-            <button data-action="pick" data-char="M5">Dragonborn Centurion <br> ★★★★★</button>
-
-            <button data-action="pick" data-char="F1">Soothing Monk <br> ★☆☆☆☆</button>
-            <button data-action="pick" data-char="F2">Whitestar Grappler <br> ★★☆☆☆</button>
-            <button data-action="pick" data-char="F3">Ancient Hero <br> ★★★☆☆</button>
-            <button data-action="pick" data-char="F4">Jandra, the Negator <br> ★★★★☆</button>
-            <button data-action="pick" data-char="F5">Dragonborn Firebat <br> ★★★★★</button>
-        </div>
+            ${bots.map((b, index) => `
+                <button data-action="pick" data-char="${index}">
+                    ${b.name} <br>
+                    ${starsFor(b.difficulty)}
+                </button>            
+            `)}
+        </div>    
     `;
 }
 

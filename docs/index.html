@@ -352,6 +352,9 @@
           // Remove data irrelevant for hitback
           always: false,
           unsafe: false,
+          backstep: false,
+          recur: false,
+          lockdown: false,
           speed: 0,
           blockDamage: 0,
           firstDamage: 0,
@@ -377,6 +380,7 @@
       const overrideParser = (c) => c === null ? null : parseMove(c, moveset);
       return {
           name: init.name,
+          difficulty: init.difficulty,
           normal: init.normal.map(i => ({
               minHand: i.min,
               maxHand: i.max,
@@ -419,6 +423,7 @@
       });
       return bot(MOVES, {
           name: 'Glass Monk',
+          difficulty: 1,
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 'BZ', 'ZC', 'X', 'X'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'ABC', 'Y', 'X', 'X'], hitback: 'Y' },
@@ -453,6 +458,7 @@
       });
       return bot(MOVES, {
           name: 'Whitestar Grappler',
+          difficulty: 2,
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 'h', 't', 't', 'AB', 'DE'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'Z', 'X', 'ABC', 'DE'], hitback: 't' },
@@ -486,6 +492,7 @@
       });
       return bot(MOVES, {
           name: 'Fox Primus',
+          difficulty: 2,
           normal: [
               { min: 5, max: 6, choices: ['tB', 'tC', 'AB', 'AB', 'AB', 'CD', 'CD', 'dt'], hitback: 'tC' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'BCD', 'CDE', 'dY++', 'dY++'], hitback: 'CDE' },
@@ -519,6 +526,7 @@
       });
       return bot(MOVES, {
           name: 'Colossus',
+          difficulty: 3,
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 'h', 't', 't', 'A', 'EF'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'Z', 'AXD', 'CDE', 'EF'], hitback: 't' },
@@ -529,12 +537,50 @@
           wakeup: { choices: ['l', 'h', 't', 't', 'CDE', 'EF', 'EF', 'Z'] },
       });
   }());
-  const BOTS = {
-      M1: bot1,
-      M2: bot2,
-      M3: bot3,
-      F2: bot7,
-  };
+  // DeGrey
+  const bot4 = (function () {
+      const MOVES = moveset({
+          // Normal
+          A: mStrike(4, 8, { height: StrikeHeight.Low }),
+          B: mStrike(4, 7),
+          D: mStrike(5, 6, { height: StrikeHeight.Low }),
+          E: mStrike(6, 5, { height: StrikeHeight.Low }),
+          F: mStrike(7, 4, { height: StrikeHeight.High }),
+          t: mThrow(8, 4),
+          // Defense
+          h: BLOCK_HIGH,
+          l: BLOCK_LOW,
+          d: mDodge(),
+          // Special
+          X: mStrike(7, 2, { blockDamage: 2, backstep: true }),
+          Y: mStrike(14, 1, { blockDamage: 4, backstep: true, knockdown: true, unsafe: true }),
+          Z: mProjectile(1, 4, { blockDamage: 1, level: 2, edge: true, recur: false, lockdown: false }),
+          // Super
+          1: mDodge({ super: true, meter: 0, recur: true }),
+          2: mStrike(20, 11, { super: true, meter: 2, blockDamage: 2 }),
+      });
+      const S1DEF = ['1DEF', { always: false }];
+      const S1EF2 = ['1EF2', { always: false }];
+      return bot(MOVES, {
+          name: 'Twilight Baron',
+          difficulty: 4,
+          normal: [
+              { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 't', 'AB', 'AB', 'Y'], hitback: 't' },
+              { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'YEF', 'YEF', 'Y', 'Y'], hitback: 'Y' },
+              { min: 9, max: 10, choices: ['l', 'h', 'tDE', 'tDE', 'YEF', 'YEF', S1DEF, 'ZDEF'], hitback: 'Y' },
+              { min: 11, max: 12, choices: [S1EF2, S1DEF, 'tDE', 'tDE', 'YEF', 'YEF', '2', 'ZEF2'], hitback: '2' },
+          ],
+          knockdown: { choices: ['l', 'h', 'l', 'h', 't', 'EF', '2', '2'] },
+          wakeup: { choices: ['l', 'h', 't', 't', 'EF', 'FZF', 'FZF', 'YEF'] },
+      });
+  }());
+  const BOTS = [
+      bot1,
+      bot2,
+      bot3,
+      bot4,
+      bot7,
+  ];
 
   //-- State --
   let handSize = 9;
@@ -559,7 +605,7 @@
   const changeCharacter = (data) => {
       const chosen = data.char;
       if (chosen) {
-          chosenBotID = chosen;
+          chosenBotID = parseInt(chosen, 10);
           chosenBot = BOTS[chosenBotID];
           showPicker = false;
           save();
@@ -730,7 +776,7 @@
   }
   function renderContent() {
       if (showPicker) {
-          return renderPicker();
+          return renderPicker(BOTS);
       }
       else {
           return renderBot(chosenBot);
@@ -781,21 +827,20 @@
         </div>
     `;
   }
-  function renderPicker() {
+  function starsFor(difficulty) {
+      const filler = 5 - difficulty;
+      return '★'.repeat(difficulty) + '☆'.repeat(filler);
+  }
+  function renderPicker(bots) {
       return `
         <div class="screen picker">
-            <button data-action="pick" data-char="M1">(1) Glass Monk</button>
-            <button data-action="pick" data-char="M2">(2) Fox Primus</button>
-            <button data-action="pick" data-char="M3">(3) Colossus</button>
-            <button data-action="pick" data-char="M4">(4) ⚠ Twilight Baron</button>
-            <button data-action="pick" data-char="M5">(5) ⚠ Dragonborn Centurion</button>
-
-            <button data-action="pick" data-char="F1">(1) ⚠ Soothing Monk</button>
-            <button data-action="pick" data-char="F2">(2) Whitestar Grappler</button>
-            <button data-action="pick" data-char="F3">(3) ⚠ Ancient Hero</button>
-            <button data-action="pick" data-char="F4">(4) ⚠ Jandra, the Negator</button>
-            <button data-action="pick" data-char="F5">(5) ⚠ Dragonborn Firebat</button>
-        </div>
+            ${bots.map((b, index) => `
+                <button data-action="pick" data-char="${index}">
+                    ${b.name} <br>
+                    ${starsFor(b.difficulty)}
+                </button>            
+            `)}
+        </div>    
     `;
   }
   function main() {

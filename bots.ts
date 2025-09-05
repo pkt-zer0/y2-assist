@@ -37,6 +37,7 @@ const bot1: BotDefinition = (function() {
 
     return bot(MOVES, {
         name: 'Glass Monk',
+        difficulty: 1,
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 't'   , 'BZ'  , 'ZC'  , 'X'    , 'X' ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'ABC' , 'Y'   , 'X'    , 'X' ], hitback: 'Y' },
@@ -73,6 +74,7 @@ const bot7: BotDefinition = (function() {
 
     return bot(MOVES, {
         name: 'Whitestar Grappler',
+        difficulty: 2,
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 't'   , 'AB'   , 'DE'   ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'Z'   , 'X'   , 'ABC'  , 'DE'   ], hitback: 't' },
@@ -108,6 +110,7 @@ const bot2: BotDefinition = (function() {
 
     return bot(MOVES, {
         name: 'Fox Primus',
+        difficulty: 2,
         normal: [
             { min: 5,  max: 6,  choices: ['tB', 'tC' , 'AB'     , 'AB'     , 'AB'    , 'CD'    , 'CD'     , 'dt'   ], hitback: 'tC'     },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'      , 't'      , 'BCD'   , 'CDE'   , 'dY++'   , 'dY++' ], hitback: 'CDE'    },
@@ -143,6 +146,7 @@ const bot3: BotDefinition = (function() {
 
     return bot(MOVES, {
         name: 'Colossus',
+        difficulty: 3,
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h' , 'l' , 'h' , 't' , 't'   , 'A'   , 'EF'  ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h' , 'l' , 't' , 'Z' , 'AXD' , 'CDE' , 'EF'  ], hitback: 't' },
@@ -182,6 +186,7 @@ const bot4: BotDefinition = (function() {
 
     return bot(MOVES, {
         name: 'Twilight Baron',
+        difficulty: 4,
         normal: [
             { min: 5,  max: 6,  choices: ['l'    , 'h'    , 'l'    , 't'   , 't'   , 'AB'    , 'AB'    , 'Y'     ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l'    , 'h'    , 'l'    , 't'   , 'YEF' , 'YEF'   , 'Y'     , 'Y'     ], hitback: 'Y' },
@@ -193,10 +198,10 @@ const bot4: BotDefinition = (function() {
     });
 }());
 
-export const BOTS: Record<string, BotDefinition> = {
-    M1: bot1,
-    M2: bot2,
-    M3: bot3,
-    M4: bot4,
-    F2: bot7,
-};
+export const BOTS: BotDefinition[] = [
+    bot1,
+    bot2,
+    bot3,
+    bot4,
+    bot7,
+];
