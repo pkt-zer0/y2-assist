@@ -24,6 +24,7 @@ interface CommonMoveProps {
     type        : MoveType;
     damage      : number;
     blockDamage : number;
+    selfDamage  : number;
     speed       : number;
     level       : number; // Projectiles only
     height      : StrikeHeight;
@@ -38,6 +39,8 @@ interface CommonMoveProps {
     super?      : boolean;
     unsafe?     : boolean; // hit back if blocked
     backstep?   : boolean; // beats normal/special of speed 8+
+    undodgeable?: boolean;
+    unblockable?: boolean;
 }
 
 export interface Move extends CommonMoveProps {

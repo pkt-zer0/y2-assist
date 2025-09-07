@@ -126,6 +126,7 @@ function renderMove(choice: Choice) {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
         height, level, description, armor,
         unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep,
+        undodgeable, unblockable, selfDamage
     } = choice;
 
     const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
@@ -150,10 +151,14 @@ function renderMove(choice: Choice) {
     if (lockdown)    { flags.push(`LOCK`); }
     if (drawOnBlock) { flags.push(`DRAW`); }
     if (backstep)    { flags.push(`STEP`); }
+    if (undodgeable) { flags.push(`CAN'T DODGE`); }
+    if (unblockable) { flags.push(`CAN'T BLOCK`); }
 
     if (armor === ArmorType.Light)  { flags.push(`[L]`); }
     if (armor === ArmorType.Medium) { flags.push(`[M]`); }
     if (armor === ArmorType.Heavy)  { flags.push(`[H]`); }
+
+    if (selfDamage) { flags.push(`${selfDamage} SELF DMG`); }
 
     return `
         <div class="damage ${typeClass(type)}" style="background: ${typeColor(type)}">
@@ -271,7 +276,7 @@ function renderPicker(bots: BotDefinition[]) {
                     ${b.name} <br>
                     ${starsFor(b.difficulty)}
                 </button>            
-            `)}
+            `).join('\n')}
         </div>    
     `;
 }

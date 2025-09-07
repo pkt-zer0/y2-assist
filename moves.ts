@@ -16,6 +16,7 @@ export const MOVE_DEFAULTS = {
     speed: 0,
     level: 0,
     blockDamage: 0,
+    selfDamage: 0,
     pumpDamage: [],
     meter: 0,
     height: StrikeHeight.Mid,
@@ -149,6 +150,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         // Determined by first move
         type       : first.type,
         blockDamage: first.blockDamage,
+        selfDamage : first.selfDamage,
         speed      : first.speed,
         level      : first.level,
         height     : first.height,
@@ -160,6 +162,8 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         always     : first.super,
         backstep   : first.backstep,
         armor      : first.armor,
+        undodgeable: first.undodgeable,
+        unblockable: first.unblockable,
 
         // Determined by last move
         knockdown: last.knockdown,

@@ -198,10 +198,51 @@ const bot4: BotDefinition = (function() {
     });
 }());
 
+// Gloria
+const bot6: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(3, 8, { height: StrikeHeight.High }),
+        B: mStrike(4, 7, { height: StrikeHeight.Low }),
+        D: mStrike(5, 6),
+        E: mStrike(6, 5, { height: StrikeHeight.Low }),
+        F: mStrike(7, 4),
+        t: mThrow (6, 3),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(),
+        // Special
+        X: mProjectile(8, 7, { blockDamage: 4, knockdown: true }),
+        Y: mStrike    (6, 5, { blockDamage: 2, pumpDamage: [7], knockdown: true, undodgeable: true }),
+        Z: mStrike    (5, 7, { blockDamage: 2 }),
+        // Super
+        1: mStrike(31, 13, { super: true, meter: 4, blockDamage: 2, unsafe: true }),
+        2: mStrike(10, 15, { super: true, meter: 1, blockDamage: 10, selfDamage: 10 }),
+    });
+
+    const BZ: ChoiceInit   = ['BZ'  , { adjust:  0 }];
+    const ABZ: ChoiceInit  = ['ABZ' , { adjust: -1 }];
+    const ABZF: ChoiceInit = ['ABZF', { adjust: -2 }];
+
+    return bot(MOVES, {
+        name: 'Soothing Monk',
+        difficulty: 1,
+        normal: [
+            { min: 5,  max: 6,  choices: ['l'  , 'h'  , 'l'   , 't'   , 'AB'   ,  BZ     , 'X' , 'X'  ], hitback: 't' },
+            { min: 7,  max: 8,  choices: ['l'  , 'h'  , 'l'   , 't'   ,  ABZ   , 'Y+E'  , 'X' , 'X'  ], hitback: 't' },
+            { min: 9,  max: 10, choices: ['l'  , 'h'  , 'l'   , 'tDE' , 'Y+DE' , 'X'    , '2' , 'dt' ], hitback: 'Y+' },
+            { min: 11, max: 12, choices: ['d1' , 'dt' , 'tEF' , 'tEF' , 'Y+DE' ,  ABZF  , '1' , '1'  ], hitback: '1' },
+        ],
+        knockdown: { choices: ['h', 't', 't', '2', '2' , '2', '2', '2' ] },
+    });
+}());
+
 export const BOTS: BotDefinition[] = [
     bot1,
     bot2,
     bot3,
     bot4,
+    bot6,
     bot7,
 ];
