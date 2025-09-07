@@ -238,6 +238,41 @@ const bot6: BotDefinition = (function() {
     });
 }());
 
+// Onimaru
+const bot8: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike( 5, 7, { height: StrikeHeight.Low, edge: true, pumpDamage: [5] }),
+        C: mStrike(10, 4, { height: StrikeHeight.Low, edge: true, pumpDamage: [5] }),
+        E: mStrike(10, 3, { armor: ArmorType.Heavy, edge: true, pumpDamage: [6] }),
+        G: mStrike(10, 2, { height: StrikeHeight.High, edge: true, pumpDamage: [8] }),
+        J: mStrike(10, 1, { height: StrikeHeight.High, edge: true, pumpDamage: [10] }),
+        t: mThrow ( 8, 3, { pumpDamage: [4, 4]}),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(),
+        // Special
+        X: mStrike(10,  7, { blockDamage: 1, pumpDamage: [10] }),
+        Y: mStrike(10, 12, { blockDamage: 2, unsafe: true }),
+        Z: mStrike( 8,  6, { blockDamage: 3, pumpDamage: [12], armor: ArmorType.Heavy }),
+        // Super
+        2: mStrike(20, 8, { super: true, meter: 2, blockDamage: 10, unblockable: true }),
+    });
+
+    return bot(MOVES, {
+        name: 'Ancient Hero',
+        difficulty: 3,
+        normal: [
+            { min: 5,  max: 6,  choices: ['l'   , 'h'   , 'l'   , 'h'  , 'dG'  , 't'   , 'C'  , 'E' ], hitback: 'C'  },
+            { min: 7,  max: 8,  choices: ['l'   , 'h'   , 'l'   , 'dG' , 't+'  , 'A'   , 'C+' , 'E+'], hitback: 'C'  },
+            { min: 9,  max: 10, choices: ['l'   , 'h'   , 'l'   , 'h'  , 't++' , 'A+'  , 'X+' , 'E+'], hitback: 'G+' },
+            { min: 11, max: 12, choices: ['dJ+' , 'dJ+' , 't++' , 'X+' , 'Y'   , 'Z+'  , '2'  , '2' ], hitback: 'J+' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 't+', 'Y', 'Y', 'Y', 'E+'] },
+    });
+}());
+
 export const BOTS: BotDefinition[] = [
     bot1,
     bot2,
@@ -245,4 +280,5 @@ export const BOTS: BotDefinition[] = [
     bot4,
     bot6,
     bot7,
+    bot8,
 ];
