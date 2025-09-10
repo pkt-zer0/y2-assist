@@ -1,4 +1,4 @@
-import { ArmorType, StrikeHeight } from './types.js';
+    import { ArmorType, StrikeHeight } from './types.js';
 import { bot, BotDefinition } from './bots_types.js';
 import {
     BLOCK_HIGH,
@@ -229,7 +229,7 @@ const bot6: BotDefinition = (function() {
         name: 'Soothing Monk',
         difficulty: 1,
         normal: [
-            { min: 5,  max: 6,  choices: ['l'  , 'h'  , 'l'   , 't'   , 'AB'   ,  BZ     , 'X' , 'X'  ], hitback: 't' },
+            { min: 5,  max: 6,  choices: ['l'  , 'h'  , 'l'   , 't'   , 'AB'   ,  BZ    , 'X' , 'X'  ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l'  , 'h'  , 'l'   , 't'   ,  ABZ   , 'Y+E'  , 'X' , 'X'  ], hitback: 't' },
             { min: 9,  max: 10, choices: ['l'  , 'h'  , 'l'   , 'tDE' , 'Y+DE' , 'X'    , '2' , 'dt' ], hitback: 'Y+' },
             { min: 11, max: 12, choices: ['d1' , 'dt' , 'tEF' , 'tEF' , 'Y+DE' ,  ABZF  , '1' , '1'  ], hitback: '1' },
@@ -273,6 +273,46 @@ const bot8: BotDefinition = (function() {
     });
 }());
 
+// Gwen
+const bot9: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(2, 9, { height: StrikeHeight.Low  }),
+        B: mStrike(3, 8, { height: StrikeHeight.Low  }),
+        C: mStrike(4, 7, { height: StrikeHeight.High }),
+        D: mStrike(5, 6, { height: StrikeHeight.High }),
+        E: mStrike(6, 5),
+        t: mThrow (6, 6, { freeze: true }),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(),
+        // Special
+        X: mStrike    (4,  8, { blockDamage: 3, pumpDamage: [4,4], edge: true }),
+        Y: mStrike    (6, 12, { blockDamage: 1, unsafe: true, selfHeal: 6 }),
+        Z: mProjectile(7,  6, { blockDamage: 5, pumpDamage: [7], freeze: true }),
+        // Super
+        1: mStrike(8, 6,  { super: true, meter: 2, selfHeal: 10 }),
+        2: mStrike(16, 9, { super: true, meter: 2 }), // Fully pumped
+    });
+
+    const dt: ChoiceInit = ['dt', { freeze: false }];
+    const wt: ChoiceInit = ['t',  { freeze: false } ];
+
+    return bot(MOVES, {
+        name: 'Jandra, the Negator',
+        difficulty: 4,
+        normal: [
+            { min: 5,  max: 6,  choices: ['tB', 'tC' , 'AB'     , 'AB'     , 'AB'    , 'CD'   , 'CD'    , dt  ], hitback: 't' },
+            { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'      , 't'      , 'BCD'   , 'CDE'  , 'dZ+'   , 'dZ+' ], hitback: 't' },
+            { min: 9,  max: 10, choices: ['l' , 'h'  , 'tCDE'   , 'tCDE'   , 'BXDE'  , 'BXDE' , 'CDXDE' , 'd2'  ], hitback: '2' },
+            { min: 11, max: 12, choices: ['1' , '1'  , 'tX++DE' , 'tX++DE' , 'ABCD2' , 'CDE2' , 'dZ+'   , '2'   ], hitback: '2' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 'h', 'Y'   , 'Y'   , '1'  , '1'  ] },
+        wakeup:    { choices: ['l', 'h', wt, wt, 'BCDE', 'BCDE', 'CDE', 'CDE'] },
+    });
+}());
+
 export const BOTS: BotDefinition[] = [
     bot1,
     bot2,
@@ -281,4 +321,5 @@ export const BOTS: BotDefinition[] = [
     bot6,
     bot7,
     bot8,
+    bot9,
 ];

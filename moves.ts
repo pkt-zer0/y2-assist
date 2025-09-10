@@ -17,6 +17,7 @@ export const MOVE_DEFAULTS = {
     level: 0,
     blockDamage: 0,
     selfDamage: 0,
+    selfHeal: 0,
     pumpDamage: [],
     meter: 0,
     height: StrikeHeight.Mid,
@@ -101,7 +102,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
     const first = moves[0];
     const last  = moves[moves.length - 1];
 
-    const hasFollowup = moves.length > 1;
+    const hasFollowup = moveString.length > 1;
     const description = hasFollowup
         ? [moveString[0], ' → ', moveString.slice(1)].join('')
         : moveString[0];
@@ -151,6 +152,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         type       : first.type,
         blockDamage: first.blockDamage,
         selfDamage : first.selfDamage,
+        selfHeal   : first.selfHeal,
         speed      : first.speed,
         level      : first.level,
         height     : first.height,
@@ -174,6 +176,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         adjust     : -totalAdjust,
         description: skipDescription ? '' : description,
         firstDamage: hasFollowup ? first.damage : 0,
+        freeze     : moves.some(m => m.freeze),
 
         // Allow explicit overrides
         ...overrides,
