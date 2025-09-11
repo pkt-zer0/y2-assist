@@ -24,6 +24,7 @@ export interface BotDefinition {
     knockdown  : ChoiceRow;
     desperate? : OverrideRow
     wakeup?    : ChoiceRow;
+    dragon?    : ChoiceRow;
 }
 
 export function applyOverride(base: ChoiceRow, override: OverrideRow): ChoiceRow {
@@ -45,6 +46,7 @@ export type BotShorthand = {
     }>,
     knockdown: { choices: ChoiceInit[] },
     wakeup?: { choices: ChoiceInit[] },
+    dragon?: { choices: ChoiceInit[], hitback: ChoiceInit },
     desperate?: { choices: Array<null | ChoiceInit> },
 };
 
@@ -70,6 +72,11 @@ export function bot(moveset: MoveSet, init: BotShorthand): BotDefinition {
         } : undefined,
         wakeup: init.wakeup ? {
             choices: init.wakeup.choices.map(moveParser),
+        } : undefined,
+        dragon: init.dragon ? {
+            choices: init.dragon.choices.map(moveParser),
+            // FIXME: Ugly hack, but it doesn't matter elsewhere. Apply override AFTER hitback mods
+            hitback: { ...asHitback(moveParser(init.dragon.hitback)), adjust: 0 },
         } : undefined,
     };
 }

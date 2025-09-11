@@ -37,6 +37,13 @@ export const BLOCK_HIGH: Move = {
     recur: true,
 };
 
+export const BLOCK_FULL: Move = {
+    ...MOVE_DEFAULTS,
+    type: MoveType.BlockFull,
+    drawOnBlock: true,
+    recur: true,
+};
+
 export function mStrike(
     damage: number, speed: number, overrides: Partial<Move> = {}
 ): Move {
@@ -166,6 +173,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         armor      : first.armor,
         undodgeable: first.undodgeable,
         unblockable: first.unblockable,
+        transform  : first.transform,
 
         // Determined by last move
         knockdown: last.knockdown,

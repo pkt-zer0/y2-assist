@@ -7,6 +7,7 @@ export enum MoveType {
     // Blocks
     BlockLow,
     BlockHigh,
+    BlockFull,
 }
 
 export enum StrikeHeight {
@@ -43,6 +44,7 @@ interface CommonMoveProps {
     undodgeable?: boolean;
     unblockable?: boolean;
     freeze?     : boolean;
+    transform?  : boolean;
 }
 
 export interface Move extends CommonMoveProps {

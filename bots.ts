@@ -1,6 +1,7 @@
-    import { ArmorType, StrikeHeight } from './types.js';
+import { ArmorType, StrikeHeight } from './types.js';
 import { bot, BotDefinition } from './bots_types.js';
 import {
+    BLOCK_FULL,
     BLOCK_HIGH,
     BLOCK_LOW,
     ChoiceInit,
@@ -46,42 +47,6 @@ const bot1: BotDefinition = (function() {
         ],
         knockdown: { choices: ['h', 't', 'Y', 'Y', 'Y', 'Y', 'Y', 'Y'] },
         desperate: { choices: [null, null, null, null, '1', '1', '1', '1'] },
-    });
-}());
-
-// Bigby
-const bot7: BotDefinition = (function() {
-    const MOVES: MoveSet = moveset({
-        // Normal
-        A: mStrike(5, 7, { height: StrikeHeight.High }),
-        B: mStrike(6, 5),
-        C: mStrike(7, 4, { height: StrikeHeight.High }),
-        D: mStrike(8, 3, { height: StrikeHeight.Low  }),
-        E: mStrike(8, 6, { knockdown: true }),
-        t: mThrow (9, 8),
-        // Defense
-        h: BLOCK_HIGH,
-        l: BLOCK_LOW,
-        d: mDodge(), // Slow dodge
-        // Special
-        X: mStrike(14, 1, { blockDamage: 4, edge: true, backstep: true }),
-        Y: mStrike(9,  6, { blockDamage: 3, pumpDamage: [5], knockdown: true }),
-        Z: mThrow (16, 9, { knockdown: false }), // armor: light
-        // Super
-        1: mStrike(10, 9,  { super: true, meter: 2, blockDamage: 2 }),
-        2: mThrow (40, 14, { super: true, meter: 3, knockdown: false }),
-    });
-
-    return bot(MOVES, {
-        name: 'Whitestar Grappler',
-        difficulty: 2,
-        normal: [
-            { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 't'   , 'AB'   , 'DE'   ], hitback: 't' },
-            { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'Z'   , 'X'   , 'ABC'  , 'DE'   ], hitback: 't' },
-            { min: 9,  max: 10, choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 'Z'   , 'Z'    , 'XD'   ], hitback: 'Z' },
-            { min: 11, max: 12, choices: ['2' , '2'  , '2'   , '1'   , 'XD'  , 'dZ'  , 'dZ'   , 'ABC'  ], hitback: '2' },
-        ],
-        knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'DE'] },
     });
 }());
 
@@ -198,6 +163,49 @@ const bot4: BotDefinition = (function() {
     });
 }());
 
+// Dragonborn Centurion
+const bot5: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(3, 8, { height: StrikeHeight.Low  }),
+        B: mStrike(4, 7),
+        C: mStrike(5, 6),
+        D: mStrike(6, 5, { height: StrikeHeight.Low }),
+        E: mStrike(7, 4, { height: StrikeHeight.High }),
+        t: mThrow (8, 6),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(),
+        // Special
+        X: mProjectile(12,  7, { blockDamage: 5 }),
+        Y: mProjectile(16,  6, { blockDamage: 6, level: 2, edge: true, lockdown: false }),
+        Z: mStrike    (10, 11, { blockDamage: 2, unsafe: true }),
+        // Dragon moves
+        b: { ...BLOCK_FULL, drawOnBlock: false, recur: false },
+        x: mProjectile(28,  7, { blockDamage: 6, level: 2, lockdown: false }),
+        y: mStrike    (18, 13, { blockDamage: 2, }),
+        z: mThrow     (23,  7, { knockdown: false }),
+        // Super
+        1: mStrike(20, 15, { super: true, meter: 2, blockDamage: 1, unsafe: true }),
+        2: mStrike( 1, 15, { super: true, meter: 3, transform: true }),
+    });
+
+    return bot(MOVES, {
+        name: 'Dragonborn Centurion',
+        difficulty: 5,
+        normal: [
+            { min: 5,  max: 6,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'DE'  , 'X' , 'Y'  ], hitback: 't' },
+            { min: 7,  max: 8,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'Z'   , 'X' , 'Y'  ], hitback: 'Y' },
+            { min: 9,  max: 10, choices: ['l' , 'h' , 'l'   , 'tCD' , 'tCD' , 'ABX' , 'X' , 'dY' ], hitback: 'Y' },
+            { min: 11, max: 12, choices: ['2' , '2' , 'tDE' , 'tDE' , 'ABX' , 'Z'   , '1' , '1'  ], hitback: '1' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 'h' , 'tCD', 'Z', 'Z', '2'] },
+        dragon:    { choices: ['l', 'h', 'b', ['dz', { adjust: 0 }], 'x'  , 'y', 'z', 'z'], hitback: ['z', { adjust: 0 }] },
+    });
+}());
+
+
 // Gloria
 const bot6: BotDefinition = (function() {
     const MOVES: MoveSet = moveset({
@@ -235,6 +243,42 @@ const bot6: BotDefinition = (function() {
             { min: 11, max: 12, choices: ['d1' , 'dt' , 'tEF' , 'tEF' , 'Y+DE' ,  ABZF  , '1' , '1'  ], hitback: '1' },
         ],
         knockdown: { choices: ['h', 't', 't', '2', '2' , '2', '2', '2' ] },
+    });
+}());
+
+// Bigby
+const bot7: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(5, 7, { height: StrikeHeight.High }),
+        B: mStrike(6, 5),
+        C: mStrike(7, 4, { height: StrikeHeight.High }),
+        D: mStrike(8, 3, { height: StrikeHeight.Low  }),
+        E: mStrike(8, 6, { knockdown: true }),
+        t: mThrow (9, 8),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(), // Slow dodge
+        // Special
+        X: mStrike(14, 1, { blockDamage: 4, edge: true, backstep: true }),
+        Y: mStrike(9,  6, { blockDamage: 3, pumpDamage: [5], knockdown: true }),
+        Z: mThrow (16, 9, { knockdown: false }), // armor: light
+        // Super
+        1: mStrike(10, 9,  { super: true, meter: 2, blockDamage: 2 }),
+        2: mThrow (40, 14, { super: true, meter: 3, knockdown: false }),
+    });
+
+    return bot(MOVES, {
+        name: 'Whitestar Grappler',
+        difficulty: 2,
+        normal: [
+            { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 't'   , 'AB'   , 'DE'   ], hitback: 't' },
+            { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'Z'   , 'X'   , 'ABC'  , 'DE'   ], hitback: 't' },
+            { min: 9,  max: 10, choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 'Z'   , 'Z'    , 'XD'   ], hitback: 'Z' },
+            { min: 11, max: 12, choices: ['2' , '2'  , '2'   , '1'   , 'XD'  , 'dZ'  , 'dZ'   , 'ABC'  ], hitback: '2' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 'h', 'l', 'h', 't', 'DE'] },
     });
 }());
 
@@ -318,6 +362,7 @@ export const BOTS: BotDefinition[] = [
     bot2,
     bot3,
     bot4,
+    bot5,
     bot6,
     bot7,
     bot8,

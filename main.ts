@@ -26,6 +26,7 @@ const toggleKnockdown = () => { mode      = mode ? '' : 'knockdown'; };
 const toggleWakeup    = () => { mode      = mode ? '' : 'wakeup'; };
 const toggleHitback   = () => { hitback   = !hitback; };
 const toggleDesperate = () => { desperate = !desperate; };
+const toggleDragon    = () => { mode      = mode ? '' : 'dragon'; };
 
 const displayPicker   = () => { showPicker = true; };
 const changeCharacter = (data: DOMStringMap) => {
@@ -196,6 +197,9 @@ function getChoiceRow(bot: BotDefinition): ChoiceRow {
     if (bot.wakeup && mode === 'wakeup') {
         row = applyOverride(row, bot.wakeup);
     }
+    if (bot.dragon && mode === 'dragon') {
+        row = applyOverride(row, bot.dragon);
+    }
 
     return row;
 }
@@ -229,10 +233,12 @@ function renderBot(bot: BotDefinition | undefined) {
     const choice = getChoice(bot);
     const isKnockdown = mode == 'knockdown';
     const isWakeup    = mode == 'wakeup';
+    const isDragon    = mode == 'dragon';
     const choiceText = hitback ? '*' : choiceIndex + 1;
 
     const showDesperate = !!bot.desperate;
     const showWakeup    = !!bot.wakeup;
+    const showDragon    = !!bot.dragon;
 
     return `
         <div class="screen main">
@@ -243,6 +249,9 @@ function renderBot(bot: BotDefinition | undefined) {
             </div>
             <div class="move"> ${renderMove(choice)} </div>
             <div class="toggles">
+                ${when(showDragon, `
+                    <button data-action="dragon" class="${toggleClass(isDragon)}"> Dragon </button>
+                `)}
                 ${when(showDesperate, `
                     <button data-action="desperate" class="${toggleClass(desperate)}"> Desperation </button>
                 `)}
@@ -299,6 +308,7 @@ function main() {
         "w"         : toggleWakeup,
         "h"         : toggleHitback,
         "d"         : toggleDesperate,
+        "t"         : toggleDragon,
     };
     document.addEventListener('keydown', (e) => {
         const handler = KEY_HANDLERS[e.key];
@@ -319,6 +329,7 @@ function main() {
         wakeup    : toggleWakeup,
         hitback   : toggleHitback,
         desperate : toggleDesperate,
+        dragon    : toggleDragon,
         // Character picker
         picker: displayPicker,
         pick  : changeCharacter,
