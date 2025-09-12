@@ -44,6 +44,7 @@ interface CommonMoveProps {
     undodgeable?: boolean;
     unblockable?: boolean;
     freeze?     : boolean;
+    oblivion?   : boolean;
     transform?  : boolean;
 }
 

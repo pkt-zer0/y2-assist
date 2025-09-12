@@ -127,7 +127,7 @@ function renderMove(choice: Choice) {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
         height, level, description, armor,
         unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep,
-        undodgeable, unblockable, selfDamage, selfHeal, freeze,
+        undodgeable, unblockable, selfDamage, selfHeal, freeze, oblivion,
     } = choice;
 
     const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
@@ -155,6 +155,7 @@ function renderMove(choice: Choice) {
     if (undodgeable) { flags.push(`CAN'T DODGE`); }
     if (unblockable) { flags.push(`CAN'T BLOCK`); }
     if (freeze)      { flags.push(`FREEZE`); }
+    if (oblivion)    { flags.push(`BREAK`); }
 
     if (armor === ArmorType.Light)  { flags.push(`[L]`); }
     if (armor === ArmorType.Medium) { flags.push(`[M]`); }

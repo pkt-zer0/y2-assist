@@ -185,6 +185,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         description: skipDescription ? '' : description,
         firstDamage: hasFollowup ? first.damage : 0,
         freeze     : moves.some(m => m.freeze),
+        oblivion   : moves.some(m => m.oblivion),
 
         // Allow explicit overrides
         ...overrides,

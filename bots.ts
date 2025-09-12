@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import { ArmorType, StrikeHeight } from './types.js';
 import { bot, BotDefinition } from './bots_types.js';
 import {
@@ -205,7 +207,6 @@ const bot5: BotDefinition = (function() {
     });
 }());
 
-
 // Gloria
 const bot6: BotDefinition = (function() {
     const MOVES: MoveSet = moveset({
@@ -357,6 +358,49 @@ const bot9: BotDefinition = (function() {
     });
 }());
 
+// Dragonborn Firebat
+const bot10: BotDefinition = (function() {
+    const MOVES: MoveSet = moveset({
+        // Normal
+        A: mStrike(3, 8, { height: StrikeHeight.Low  }),
+        B: mStrike(4, 7),
+        C: mStrike(5, 6),
+        D: mStrike(6, 5, { height: StrikeHeight.Low }),
+        E: mStrike(7, 4, { height: StrikeHeight.High }),
+        t: mThrow (8, 6, { oblivion: true }),
+        // Defense
+        h: BLOCK_HIGH,
+        l: BLOCK_LOW,
+        d: mDodge(),
+        // Special
+        X: mProjectile(12,  7, { blockDamage: 5 }),
+        Y: mProjectile(16,  6, { blockDamage: 6, level: 2, edge: true, lockdown: false }),
+        Z: mStrike    (10, 11, { blockDamage: 2, unsafe: true }),
+        // Dragon moves
+        b: { ...BLOCK_FULL, drawOnBlock: false, recur: false },
+        x: mProjectile(28,  7, { blockDamage: 6, level: 2, lockdown: false, oblivion: true }),
+        y: mStrike    (18, 13, { blockDamage: 2, oblivion: true }),
+        z: mThrow     (23,  7, { knockdown: false, oblivion: true }),
+        // Super
+        1: mStrike(20, 15, { super: true, meter: 2, blockDamage: 1, unsafe: true, oblivion: true }),
+        2: mStrike( 1, 15, { super: true, meter: 3, transform: true }),
+    });
+
+    return bot(MOVES, {
+        name: 'Dragonborn Firebat',
+        difficulty: 5,
+        normal: [
+            { min: 5,  max: 6,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'DE'  , 'X' , 'Y'  ], hitback: 't' },
+            { min: 7,  max: 8,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'Z'   , 'X' , 'Y'  ], hitback: 'Y' },
+            { min: 9,  max: 10, choices: ['l' , 'h' , 'l'   , 'tCD' , 'tCD' , 'ABX' , 'X' , 'dY' ], hitback: 'Y' },
+            { min: 11, max: 12, choices: ['2' , '2' , 'tDE' , 'tDE' , 'ABX' , 'Z'   , '1' , '1'  ], hitback: '1' },
+        ],
+        knockdown: { choices: ['l', 'h', 'l', 'h' , 'tCD', 'Z', 'Z', '2'] },
+        dragon:    { choices: ['l', 'h', 'b', ['dz', { adjust: 0 }], 'x'  , 'y', 'z', 'z'], hitback: ['z', { adjust: 0 }] },
+    });
+}());
+
+
 export const BOTS: BotDefinition[] = [
     bot1,
     bot2,
@@ -367,4 +411,5 @@ export const BOTS: BotDefinition[] = [
     bot7,
     bot8,
     bot9,
+    bot10,
 ];
