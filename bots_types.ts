@@ -38,6 +38,42 @@ export function applyOverride(base: ChoiceRow, override: OverrideRow): ChoiceRow
     };
 }
 
+export function modifyRow(row: ChoiceRow, change: (input: Choice) => Choice): ChoiceRow {
+    return {
+        choices: row.choices.map(c => {
+            return change({ ...c });
+        }),
+        hitback: !row.hitback ? undefined : change({ ...row.hitback })
+    };
+}
+
+export function modifyKnockdown(input: ChoiceRow): ChoiceRow {
+    return modifyRow(input, c => {
+        if (c.speed && c.speed < 10) {
+            c.speed = 10;
+        }
+        return c;
+    });
+}
+
+export function modifyEdge(input: ChoiceRow): ChoiceRow {
+    return modifyRow(input, c => {
+        if (c.speed && c.speed < 10) {
+            c.speed = Math.min(c.speed + 3, 10);
+        }
+        return c;
+    });
+}
+
+export function removeHandsizeChanges(input: ChoiceRow): ChoiceRow {
+    return modifyRow(input, c => {
+        c.adjust = 0;
+        c.recur = false;
+        c.drawOnBlock = false;
+        return c;
+    });
+}
+
 export type BotShorthand = {
     name: string,
     difficulty: number,
@@ -70,13 +106,12 @@ export function bot(moveset: MoveSet, init: BotShorthand): BotDefinition {
         desperate: init.desperate ? {
             choices: init.desperate.choices.map(overrideParser),
         } : undefined,
-        wakeup: init.wakeup ? {
+        wakeup: init.wakeup ? modifyKnockdown({
             choices: init.wakeup.choices.map(moveParser),
-        } : undefined,
-        dragon: init.dragon ? {
+        }) : undefined,
+        dragon: init.dragon ? removeHandsizeChanges({
             choices: init.dragon.choices.map(moveParser),
-            // FIXME: Ugly hack, but it doesn't matter elsewhere. Apply override AFTER hitback mods
-            hitback: { ...asHitback(moveParser(init.dragon.hitback)), adjust: 0 },
-        } : undefined,
+            hitback: asHitback(moveParser(init.dragon.hitback)),
+        }) : undefined,
     };
 }

@@ -203,7 +203,7 @@ const bot5: BotDefinition = (function() {
             { min: 11, max: 12, choices: ['2' , '2' , 'tDE' , 'tDE' , 'ABX' , 'Z'   , '1' , '1'  ], hitback: '1' },
         ],
         knockdown: { choices: ['l', 'h', 'l', 'h' , 'tCD', 'Z', 'Z', '2'] },
-        dragon:    { choices: ['l', 'h', 'b', ['dz', { adjust: 0 }], 'x'  , 'y', 'z', 'z'], hitback: ['z', { adjust: 0 }] },
+        dragon:    { choices: ['l', 'h', 'b', 'dz', 'x'  , 'y', 'z', 'z'], hitback: 'z' },
     });
 }());
 
@@ -396,7 +396,7 @@ const bot10: BotDefinition = (function() {
             { min: 11, max: 12, choices: ['2' , '2' , 'tDE' , 'tDE' , 'ABX' , 'Z'   , '1' , '1'  ], hitback: '1' },
         ],
         knockdown: { choices: ['l', 'h', 'l', 'h' , 'tCD', 'Z', 'Z', '2'] },
-        dragon:    { choices: ['l', 'h', 'b', ['dz', { adjust: 0 }], 'x'  , 'y', 'z', 'z'], hitback: ['z', { adjust: 0 }] },
+        dragon:    { choices: ['l', 'h', 'b', 'dz', 'x'  , 'y', 'z', 'z'], hitback: 'z' },
     });
 }());
 
