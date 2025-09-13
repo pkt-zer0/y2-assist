@@ -6,7 +6,26 @@
     <title>Y2 assistant</title>
     <!--suppress CssUnusedSymbol -->
     <style>
+        :root {
+            --text-color: black;
+            --text-bg: white;
+            --button-bg: #f0f0f0;
+            --button-bg-on: #333;
+            --button-fg-on: white;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-color: white;
+                --text-bg: #333;
+                --button-bg: #101010;
+                --button-bg-on: #888;
+                --button-fg-on: black;
+            }
+        }
+
         html {
+            background: var(--text-bg);
+            color: var(--text-color);
             font-size: 4vw;
             user-select: none;
         }
@@ -41,8 +60,8 @@
             height: 2rem;
         }
         button {
-            background: #f0f0f0;
-            color: black;
+            background: var(--button-bg);
+            color: var(--text-color);
 
             font-size: 1rem;
             flex-basis: 0;
@@ -57,8 +76,8 @@
             flex-grow: 0;
         }
         button.on {
-            background: #333;
-            color: white;
+            background: var(--button-bg-on);
+            color: var(--button-fg-on);
         }
         .move {
             position: relative;
@@ -95,6 +114,7 @@
         }
         .blockDamage {
             background: lightblue;
+            color: black;
             width : 20%;
             height: 20%;
             left  : 58%;
@@ -122,6 +142,7 @@
         }
         .adjust {
             background: sandybrown;
+            color: black;
             width : 20%;
             height: 30%;
             left  : 80%;
