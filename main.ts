@@ -97,6 +97,7 @@ function typeColor(type: MoveType) {
             return '#f90';
         case MoveType.BlockLow:
         case MoveType.BlockHigh:
+        case MoveType.BlockFull:
             return '#00f';
     }
 }
@@ -104,6 +105,7 @@ function typeClass(type: MoveType) {
     switch (type) {
         case MoveType.BlockLow:
         case MoveType.BlockHigh:
+        case MoveType.BlockFull:
             return 'block';
         case MoveType.Projectile:
             return 'projectile';

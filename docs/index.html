@@ -282,7 +282,8 @@
           ? [moveString[0], ' → ', moveString.slice(1)].join('')
           : moveString[0];
       const skipDescription = (first.type == MoveType.BlockHigh
-          || first.type == MoveType.BlockLow);
+          || first.type == MoveType.BlockLow
+          || first.type == MoveType.BlockFull);
       let totalDamage = 0;
       let lastMove = null;
       let pumpCount = -1;
@@ -394,6 +395,30 @@
           hitback: override.hitback ?? base.hitback
       };
   }
+  function modifyRow(row, change) {
+      return {
+          choices: row.choices.map(c => {
+              return change({ ...c });
+          }),
+          hitback: !row.hitback ? undefined : change({ ...row.hitback })
+      };
+  }
+  function modifyKnockdown(input) {
+      return modifyRow(input, c => {
+          if (c.speed && c.speed < 10) {
+              c.speed = 10;
+          }
+          return c;
+      });
+  }
+  function removeHandsizeChanges(input) {
+      return modifyRow(input, c => {
+          c.adjust = 0;
+          c.recur = false;
+          c.drawOnBlock = false;
+          return c;
+      });
+  }
   function bot(moveset, init) {
       const moveParser = (c) => parseMove(c, moveset);
       const overrideParser = (c) => c === null ? null : parseMove(c, moveset);
@@ -412,14 +437,13 @@
           desperate: init.desperate ? {
               choices: init.desperate.choices.map(overrideParser),
           } : undefined,
-          wakeup: init.wakeup ? {
+          wakeup: init.wakeup ? modifyKnockdown({
               choices: init.wakeup.choices.map(moveParser),
-          } : undefined,
-          dragon: init.dragon ? {
+          }) : undefined,
+          dragon: init.dragon ? removeHandsizeChanges({
               choices: init.dragon.choices.map(moveParser),
-              // FIXME: Ugly hack, but it doesn't matter elsewhere. Apply override AFTER hitback mods
-              hitback: { ...asHitback(moveParser(init.dragon.hitback)), adjust: 0 },
-          } : undefined,
+              hitback: asHitback(moveParser(init.dragon.hitback)),
+          }) : undefined,
       };
   }
 
@@ -602,7 +626,7 @@
               { min: 11, max: 12, choices: ['2', '2', 'tDE', 'tDE', 'ABX', 'Z', '1', '1'], hitback: '1' },
           ],
           knockdown: { choices: ['l', 'h', 'l', 'h', 'tCD', 'Z', 'Z', '2'] },
-          dragon: { choices: ['l', 'h', 'b', ['dz', { adjust: 0 }], 'x', 'y', 'z', 'z'], hitback: ['z', { adjust: 0 }] },
+          dragon: { choices: ['l', 'h', 'b', 'dz', 'x', 'y', 'z', 'z'], hitback: 'z' },
       });
   }());
   // Gloria
@@ -783,7 +807,7 @@
               { min: 11, max: 12, choices: ['2', '2', 'tDE', 'tDE', 'ABX', 'Z', '1', '1'], hitback: '1' },
           ],
           knockdown: { choices: ['l', 'h', 'l', 'h', 'tCD', 'Z', 'Z', '2'] },
-          dragon: { choices: ['l', 'h', 'b', ['dz', { adjust: 0 }], 'x', 'y', 'z', 'z'], hitback: ['z', { adjust: 0 }] },
+          dragon: { choices: ['l', 'h', 'b', 'dz', 'x', 'y', 'z', 'z'], hitback: 'z' },
       });
   }());
   const BOTS = [
@@ -882,6 +906,7 @@
               return '#f90';
           case MoveType.BlockLow:
           case MoveType.BlockHigh:
+          case MoveType.BlockFull:
               return '#00f';
       }
   }
@@ -889,6 +914,7 @@
       switch (type) {
           case MoveType.BlockLow:
           case MoveType.BlockHigh:
+          case MoveType.BlockFull:
               return 'block';
           case MoveType.Projectile:
               return 'projectile';

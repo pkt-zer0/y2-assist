@@ -116,6 +116,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
     const skipDescription = (
         first.type == MoveType.BlockHigh
         ||  first.type == MoveType.BlockLow
+        ||  first.type == MoveType.BlockFull
     );
 
     let totalDamage = 0;
