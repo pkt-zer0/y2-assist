@@ -13,6 +13,7 @@ let desperate = false;
 let chosenBotID: number | undefined = undefined;
 let chosenBot: BotDefinition | undefined = undefined;
 let showPicker = true;
+let showAbout  = false;
 
 //-- Actions --
 
@@ -28,6 +29,7 @@ const toggleHitback   = () => { hitback   = !hitback; };
 const toggleDesperate = () => { desperate = !desperate; };
 const toggleDragon    = () => { mode      = mode ? '' : 'dragon'; };
 
+const displayAbout    = () => { showAbout  = !showAbout; };
 const displayPicker   = () => { showPicker = true; };
 const changeCharacter = (data: DOMStringMap) => {
     const chosen = data.char;
@@ -216,6 +218,9 @@ function getChoice(bot: BotDefinition): Choice {
 }
 
 function renderContent() {
+    if (showAbout) {
+        return renderAbout();
+    }
     if (showPicker) {
         return renderPicker(BOTS);
     } else {
@@ -245,6 +250,9 @@ function renderBot(bot: BotDefinition | undefined) {
 
     return `
         <div class="screen main">
+            <div class="header">
+                <button class="fixed" data-action="about">About</button>
+            </div>
             <div class="header">
                 <span>[${handSize}] / ${choiceText}</span>
                 <span> ${(bot.name)}</span>
@@ -295,6 +303,29 @@ function renderPicker(bots: BotDefinition[]) {
     `;
 }
 
+function link(url: string, text: string) {
+    return `<a href="${url}" target="_blank">${text}</a>`;
+}
+function renderAbout() {
+    const yomi2    = `https://www.sirlingames.com/yomi2`;
+    const handmade = `https://hero.handmade.network/`;
+    const source   = `https://github.com/pkt-zer0/y2-assist`;
+
+    return `
+        <div class="screen about">
+            <div class="controls">
+                <button data-action="about">Close</button>
+            </div>
+            <p>Unofficial solo mode assistant for Yomi 2 from 
+                ${link(yomi2, `Sirlin Games`)}.
+            </p>
+            <p>Lovingly ${link(handmade, `handmade`)} by <b>Kovács "pkt" György</b>.</p>
+            <p>${link(source, `Source code`)} also available for the curious.</p>
+        </div>    
+    `;
+
+}
+
 type EventHandler<T> = (data: T) => void;
 
 function main() {
@@ -336,6 +367,8 @@ function main() {
         // Character picker
         picker: displayPicker,
         pick  : changeCharacter,
+        // Misc
+        about: displayAbout,
     };
     html.addEventListener('click', e => {
         const target = e.target;

@@ -42,23 +42,24 @@
             box-sizing: border-box;
             touch-action: manipulation;
         }
-        .screen.main, .screen.picker {
+        .screen.main, .screen.picker, .screen.about {
             display: flex;
             flex-direction: column;
         }
         .screen.picker {
             overflow-y: auto;
         }
+        .screen.about {
+            align-items: center;
+        }
         .controls, .toggles, .header {
             display: flex;
             width: 100%;
-            height: 3rem;
             font-size: 1.5rem;
             justify-content: space-between;
         }
-        .toggles {
-            height: 2rem;
-        }
+        .controls { height: 3rem; }
+        .toggles  { height: 2rem; }
         button {
             background: var(--button-bg);
             color: var(--text-color);
@@ -853,6 +854,7 @@
   let chosenBotID = undefined;
   let chosenBot = undefined;
   let showPicker = true;
+  let showAbout = true;
   //-- Actions --
   const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
   const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
@@ -864,6 +866,7 @@
   const toggleHitback = () => { hitback = !hitback; };
   const toggleDesperate = () => { desperate = !desperate; };
   const toggleDragon = () => { mode = mode ? '' : 'dragon'; };
+  const displayAbout = () => { showAbout = !showAbout; };
   const displayPicker = () => { showPicker = true; };
   const changeCharacter = (data) => {
       const chosen = data.char;
@@ -1061,6 +1064,9 @@
       return row.choices[choiceIndex];
   }
   function renderContent() {
+      if (showAbout) {
+          return renderAbout();
+      }
       if (showPicker) {
           return renderPicker(BOTS);
       }
@@ -1087,6 +1093,9 @@
       const showDragon = !!bot.dragon;
       return `
         <div class="screen main">
+            <div class="header">
+                <button class="fixed" data-action="about">About</button>
+            </div>
             <div class="header">
                 <span>[${handSize}] / ${choiceText}</span>
                 <span> ${(bot.name)}</span>
@@ -1134,6 +1143,26 @@
         </div>    
     `;
   }
+  function link(url, text) {
+      return `<a href="${url}" target="_blank">${text}</a>`;
+  }
+  function renderAbout() {
+      const yomi2 = `https://www.sirlingames.com/yomi2`;
+      const handmade = `https://hero.handmade.network/`;
+      const source = `https://github.com/pkt-zer0/y2-assist`;
+      return `
+        <div class="screen about">
+            <div class="controls">
+                <button data-action="about">Close</button>
+            </div>
+            <p>Unofficial solo mode assistant for Yomi 2 from 
+                ${link(yomi2, `Sirlin Games`)}.
+            </p>
+            <p>Lovingly ${link(handmade, `handmade`)} by <b>Kovács "pkt" György</b>.</p>
+            <p>${link(source, `Source code`)} also available for the curious.</p>
+        </div>    
+    `;
+  }
   function main() {
       const html = document.documentElement;
       const container = document.querySelector('#main');
@@ -1171,6 +1200,8 @@
           // Character picker
           picker: displayPicker,
           pick: changeCharacter,
+          // Misc
+          about: displayAbout,
       };
       html.addEventListener('click', e => {
           const target = e.target;
