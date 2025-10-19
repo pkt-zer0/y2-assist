@@ -316,11 +316,15 @@ function renderAbout() {
             <div class="controls">
                 <button data-action="about">Close</button>
             </div>
-            <p>Unofficial solo mode assistant for Yomi 2 from 
-                ${link(yomi2, `Sirlin Games`)}.
+            <p>
+                Unofficial solo mode assistant for <br>
+                Yomi 2 from ${link(yomi2, `Sirlin Games`)}.
             </p>
-            <p>Lovingly ${link(handmade, `handmade`)} by <b>Kovács "pkt" György</b>.</p>
-            <p>${link(source, `Source code`)} also available for the curious.</p>
+            <p>
+                Lovingly ${link(handmade, `handmade`)} by<br>
+                <b>Kovács "pkt" György</b>.
+            </p>
+            <p>${link(source, `Source code`)}<br> also available for the curious.</p>
         </div>    
     `;
 
