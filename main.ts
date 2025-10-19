@@ -137,15 +137,6 @@ function renderMove(choice: Choice) {
     const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
     const gapPosition = type === MoveType.BlockHigh ? '50%' : '0';
     const reversal = speed > 10;
-    const speedStyle = reversal ? {
-        background: '#333',
-        color: 'palegoldenrod',
-        'border-color': 'darkgoldenrod',
-    } : {
-        background: 'palegoldenrod',
-        color: 'black',
-        'border-color': 'black',
-    };
     const levelText = Array(level).fill('I').join('');
 
     const flags: string[] = [];
@@ -181,7 +172,7 @@ function renderMove(choice: Choice) {
         <div class="height" ${style(heightStyle(height))}></div>
 
         ${when(level, `<div class="level"> ${levelText} </div>`)}
-        ${when(speed, `<div class="speed" ${style(speedStyle)}> ${speed} </div>`)}
+        ${when(speed, `<div class="speed ${when(reversal, "reversal")}"> ${speed} </div>`)}
         ${when(blockDamage, `<div class="blockDamage"> ${blockDamage} </div>`)}
         ${when(adjust, `<div class="adjust"> ${adjust}${always ? '!' : ''} </div>`)}
     `;

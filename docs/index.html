@@ -21,6 +21,15 @@
                 --button-bg-on: #888;
                 --button-fg-on: black;
             }
+            a:link {
+                color: #3391ff;
+            }
+            a:visited {
+                color: #a240ff;
+            }
+            .speed.reversal {
+                background: black !important;
+            }
         }
 
         html {
@@ -51,6 +60,13 @@
         }
         .screen.about {
             align-items: center;
+            font-size: 1.5rem;
+            text-align: center;
+
+            button {
+                margin: 0;
+                font-size: 1.5rem;
+            }
         }
         .controls, .toggles, .header {
             display: flex;
@@ -131,8 +147,9 @@
         }
         .speed {
             background: palegoldenrod;
-            color: grey;
+            color: black;
             border-color: black;
+
             border-width: 0.0625rem;
             border-style: solid;
             top: 10%;
@@ -141,6 +158,12 @@
             height: 20%;
             border-radius: 50%;
         }
+        .speed.reversal {
+            background: #333;
+            color: palegoldenrod;
+            border-color: darkgoldenrod;
+        }
+
         .adjust {
             background: sandybrown;
             color: black;
@@ -854,7 +877,7 @@
   let chosenBotID = undefined;
   let chosenBot = undefined;
   let showPicker = true;
-  let showAbout = true;
+  let showAbout = false;
   //-- Actions --
   const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
   const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
@@ -960,15 +983,6 @@
       const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
       const gapPosition = type === MoveType.BlockHigh ? '50%' : '0';
       const reversal = speed > 10;
-      const speedStyle = reversal ? {
-          background: '#333',
-          color: 'palegoldenrod',
-          'border-color': 'darkgoldenrod',
-      } : {
-          background: 'palegoldenrod',
-          color: 'black',
-          'border-color': 'black',
-      };
       const levelText = Array(level).fill('I').join('');
       const flags = [];
       if (unsafe) {
@@ -1032,7 +1046,7 @@
         <div class="height" ${style(heightStyle(height))}></div>
 
         ${when(level, `<div class="level"> ${levelText} </div>`)}
-        ${when(speed, `<div class="speed" ${style(speedStyle)}> ${speed} </div>`)}
+        ${when(speed, `<div class="speed ${when(reversal, "reversal")}"> ${speed} </div>`)}
         ${when(blockDamage, `<div class="blockDamage"> ${blockDamage} </div>`)}
         ${when(adjust, `<div class="adjust"> ${adjust}${always ? '!' : ''} </div>`)}
     `;
@@ -1155,11 +1169,15 @@
             <div class="controls">
                 <button data-action="about">Close</button>
             </div>
-            <p>Unofficial solo mode assistant for Yomi 2 from 
-                ${link(yomi2, `Sirlin Games`)}.
+            <p>
+                Unofficial solo mode assistant for <br>
+                Yomi 2 from ${link(yomi2, `Sirlin Games`)}.
             </p>
-            <p>Lovingly ${link(handmade, `handmade`)} by <b>Kovács "pkt" György</b>.</p>
-            <p>${link(source, `Source code`)} also available for the curious.</p>
+            <p>
+                Lovingly ${link(handmade, `handmade`)} by<br>
+                <b>Kovács "pkt" György</b>.
+            </p>
+            <p>${link(source, `Source code`)}<br> also available for the curious.</p>
         </div>    
     `;
   }
