@@ -1,6 +1,13 @@
 import { BOTS } from './bots.js';
 import { applyOverride, BotDefinition, ChoiceRow } from './bots_types.js';
-import { ArmorType, Choice, MoveType, StrikeHeight } from './types.js';
+import {
+    ArmorType,
+    Choice,
+    FLAG_DEFS,
+    FLAG_NAMES,
+    MoveType,
+    StrikeHeight,
+} from './types.js';
 
 //-- State --
 
@@ -130,8 +137,7 @@ function renderMove(choice: Choice) {
     const {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
         height, level, description, armor,
-        unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep,
-        undodgeable, unblockable, selfDamage, selfHeal, freeze, oblivion,
+        selfDamage, selfHeal
     } = choice;
 
     const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
@@ -140,17 +146,11 @@ function renderMove(choice: Choice) {
     const levelText = Array(level).fill('I').join('');
 
     const flags: string[] = [];
-    if (unsafe)      { flags.push(`⚠`); }
-    if (knockdown)   { flags.push(`KD`); }
-    if (edge)        { flags.push(`⊕`); }
-    if (recur)       { flags.push(`RECUR`); }
-    if (lockdown)    { flags.push(`LOCK`); }
-    if (drawOnBlock) { flags.push(`DRAW`); }
-    if (backstep)    { flags.push(`STEP`); }
-    if (undodgeable) { flags.push(`CAN'T DODGE`); }
-    if (unblockable) { flags.push(`CAN'T BLOCK`); }
-    if (freeze)      { flags.push(`FREEZE`); }
-    if (oblivion)    { flags.push(`BREAK`); }
+    for (const flagname of FLAG_NAMES) {
+        if (choice[flagname]) {
+            flags.push(FLAG_DEFS[flagname].icon);
+        }
+    }
 
     if (armor === ArmorType.Light)  { flags.push(`[L]`); }
     if (armor === ArmorType.Medium) { flags.push(`[M]`); }

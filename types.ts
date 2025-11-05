@@ -21,6 +21,25 @@ export enum ArmorType {
     Heavy,  // vs Normal and Special
 }
 
+// Built-in flags
+export const FLAG_DEFS = {
+    unsafe     : { icon: `⚠`,           desc: `Unsafe on block`},
+    edge       : { icon: `⊕`,           desc: `Edge on block or hit`},
+
+    knockdown  : { icon: `KD`,          desc: `Knockdown on hit`},
+    recur      : { icon: `RECUR`,       desc: `+1 handsize if not hit`},
+    lockdown   : { icon: `LOCK`,        desc: `Prevent draw from block`},
+    drawOnBlock: { icon: `DRAW`,        desc: `+1 handsize if blocked a strike`},
+    backstep   : { icon: `STEP`,        desc: `Beats normal/special strikes of speed 8 or higher`},
+    undodgeable: { icon: `CAN'T DODGE`, desc: `Cannot be dodged`},
+    unblockable: { icon: `CAN'T BLOCK`, desc: `Cannot be blocked`},
+    freeze     : { icon: `FREEZE`,      desc: `If this hits on the bot's turn, skip your next main phase`},
+    oblivion   : { icon: `BREAK`,       desc: `If this hits, remove a random discarded card from the game`},
+    transform  : { icon: `DRAGON`,      desc: `Transforms into a dragon`},
+};
+export type FlagNames = keyof typeof FLAG_DEFS;
+export const FLAG_NAMES = Object.keys(FLAG_DEFS) as FlagNames[];
+
 interface CommonMoveProps {
     type        : MoveType;
     damage      : number;
@@ -31,6 +50,7 @@ interface CommonMoveProps {
     level       : number; // Projectiles only
     height      : StrikeHeight;
     armor       : ArmorType;
+    super?      : boolean;
 
     // Various optional flags
     recur?      : boolean  // draw if not hit
@@ -38,7 +58,6 @@ interface CommonMoveProps {
     knockdown?  : boolean;
     edge?       : boolean;
     lockdown?   : boolean; // prevent draw on block
-    super?      : boolean;
     unsafe?     : boolean; // hit back if blocked
     backstep?   : boolean; // beats normal/special of speed 8+
     undodgeable?: boolean;

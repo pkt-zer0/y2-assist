@@ -229,6 +229,22 @@
       ArmorType[ArmorType["Medium"] = 2] = "Medium";
       ArmorType[ArmorType["Heavy"] = 3] = "Heavy";
   })(ArmorType || (ArmorType = {}));
+  // Built-in flags
+  const FLAG_DEFS = {
+      unsafe: { icon: `⚠`, desc: `Unsafe on block` },
+      edge: { icon: `⊕`, desc: `Edge on block or hit` },
+      knockdown: { icon: `KD`, desc: `Knockdown on hit` },
+      recur: { icon: `RECUR`, desc: `+1 handsize if not hit` },
+      lockdown: { icon: `LOCK`, desc: `Prevent draw from block` },
+      drawOnBlock: { icon: `DRAW`, desc: `+1 handsize if blocked a strike` },
+      backstep: { icon: `STEP`, desc: `Beats normal/special strikes of speed 8 or higher` },
+      undodgeable: { icon: `CAN'T DODGE`, desc: `Cannot be dodged` },
+      unblockable: { icon: `CAN'T BLOCK`, desc: `Cannot be blocked` },
+      freeze: { icon: `FREEZE`, desc: `If this hits on the bot's turn, skip your next main phase` },
+      oblivion: { icon: `BREAK`, desc: `If this hits, remove a random discarded card from the game` },
+      transform: { icon: `DRAGON`, desc: `Transforms into a dragon` },
+  };
+  const FLAG_NAMES = Object.keys(FLAG_DEFS);
   /* Move description shorthand (case sensitive):
     - A..J : normals
     - t, l, h, b, d: throw, low/high/full block, dodge
@@ -979,44 +995,16 @@
       }
   }
   function renderMove(choice) {
-      const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, armor, unsafe, knockdown, edge, recur, lockdown, drawOnBlock, backstep, undodgeable, unblockable, selfDamage, selfHeal, freeze, oblivion, } = choice;
+      const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, armor, selfDamage, selfHeal } = choice;
       const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
       const gapPosition = type === MoveType.BlockHigh ? '50%' : '0';
       const reversal = speed > 10;
       const levelText = Array(level).fill('I').join('');
       const flags = [];
-      if (unsafe) {
-          flags.push(`⚠`);
-      }
-      if (knockdown) {
-          flags.push(`KD`);
-      }
-      if (edge) {
-          flags.push(`⊕`);
-      }
-      if (recur) {
-          flags.push(`RECUR`);
-      }
-      if (lockdown) {
-          flags.push(`LOCK`);
-      }
-      if (drawOnBlock) {
-          flags.push(`DRAW`);
-      }
-      if (backstep) {
-          flags.push(`STEP`);
-      }
-      if (undodgeable) {
-          flags.push(`CAN'T DODGE`);
-      }
-      if (unblockable) {
-          flags.push(`CAN'T BLOCK`);
-      }
-      if (freeze) {
-          flags.push(`FREEZE`);
-      }
-      if (oblivion) {
-          flags.push(`BREAK`);
+      for (const flagname of FLAG_NAMES) {
+          if (choice[flagname]) {
+              flags.push(FLAG_DEFS[flagname].icon);
+          }
       }
       if (armor === ArmorType.Light) {
           flags.push(`[L]`);
