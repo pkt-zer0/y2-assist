@@ -21,6 +21,7 @@ let chosenBotID: number | undefined = undefined;
 let chosenBot: BotDefinition | undefined = undefined;
 let showPicker = true;
 let showAbout  = false;
+let showHelp   = false;
 
 //-- Actions --
 
@@ -37,6 +38,7 @@ const toggleDesperate = () => { desperate = !desperate; };
 const toggleDragon    = () => { mode      = mode ? '' : 'dragon'; };
 
 const displayAbout    = () => { showAbout  = !showAbout; };
+const displayHelp     = () => { showHelp   = !showHelp; };
 const displayPicker   = () => { showPicker = true; };
 const changeCharacter = (data: DOMStringMap) => {
     const chosen = data.char;
@@ -212,6 +214,9 @@ function renderContent() {
     if (showAbout) {
         return renderAbout();
     }
+    if (showHelp) {
+        return renderHelp();
+    }
     if (showPicker) {
         return renderPicker(BOTS);
     } else {
@@ -243,6 +248,7 @@ function renderBot(bot: BotDefinition | undefined) {
         <div class="screen main">
             <div class="header">
                 <button class="fixed" data-action="about">About</button>
+                <button class="fixed" data-action="help">Help</button>
             </div>
             <div class="header">
                 <span>[${handSize}] / ${choiceText}</span>
@@ -321,6 +327,28 @@ function renderAbout() {
 
 }
 
+function renderHelp() {
+    return `
+        <div class="screen help">
+            <div class="controls">
+                <button data-action="help">Close</button>
+            </div>
+            <div class="content">            
+            ${FLAG_NAMES.map(flag => {
+                const def = FLAG_DEFS[flag];
+                return `
+                <article>
+                    <h4>
+                        ${def.icon} <code>[${flag}]</code> 
+                    </h4>
+                    <p>${def.desc}</p>
+                </article>`;
+            }).join('\n')}
+            </div>
+        </div>    
+    `;
+}
+
 type EventHandler<T> = (data: T) => void;
 
 function main() {
@@ -364,6 +392,7 @@ function main() {
         pick  : changeCharacter,
         // Misc
         about: displayAbout,
+        help : displayHelp,
     };
     html.addEventListener('click', e => {
         const target = e.target;

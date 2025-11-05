@@ -58,14 +58,40 @@
         .screen.picker {
             overflow-y: auto;
         }
+        .screen.about, .screen.help {
+            button {
+                margin: 0;
+                font-size: 1.5rem;
+                height: 3rem;
+            }
+        }
         .screen.about {
             align-items: center;
             font-size: 1.5rem;
             text-align: center;
 
-            button {
-                margin: 0;
-                font-size: 1.5rem;
+        }
+        .screen.help {
+            display: flex;
+            flex-direction: column;
+
+            .content {
+                overflow-y: auto;
+            }
+            article {
+                border-bottom: 0.0625rem solid black;
+                padding: 1rem;
+
+                h4 {
+                    margin: 0 0 0.5rem;
+                }
+                p {
+                    margin: 0;
+                }
+                code {
+                    font-weight: normal;
+                    float: right;
+                }
             }
         }
         .controls, .toggles, .header {
@@ -73,6 +99,7 @@
             width: 100%;
             font-size: 1.5rem;
             justify-content: space-between;
+            flex-shrink: 0;
         }
         .controls { height: 3rem; }
         .toggles  { height: 2rem; }
@@ -894,6 +921,7 @@
   let chosenBot = undefined;
   let showPicker = true;
   let showAbout = false;
+  let showHelp = false;
   //-- Actions --
   const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
   const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
@@ -906,6 +934,7 @@
   const toggleDesperate = () => { desperate = !desperate; };
   const toggleDragon = () => { mode = mode ? '' : 'dragon'; };
   const displayAbout = () => { showAbout = !showAbout; };
+  const displayHelp = () => { showHelp = !showHelp; };
   const displayPicker = () => { showPicker = true; };
   const changeCharacter = (data) => {
       const chosen = data.char;
@@ -1069,6 +1098,9 @@
       if (showAbout) {
           return renderAbout();
       }
+      if (showHelp) {
+          return renderHelp();
+      }
       if (showPicker) {
           return renderPicker(BOTS);
       }
@@ -1097,6 +1129,7 @@
         <div class="screen main">
             <div class="header">
                 <button class="fixed" data-action="about">About</button>
+                <button class="fixed" data-action="help">Help</button>
             </div>
             <div class="header">
                 <span>[${handSize}] / ${choiceText}</span>
@@ -1169,6 +1202,27 @@
         </div>    
     `;
   }
+  function renderHelp() {
+      return `
+        <div class="screen help">
+            <div class="controls">
+                <button data-action="help">Close</button>
+            </div>
+            <div class="content">            
+            ${FLAG_NAMES.map(flag => {
+        const def = FLAG_DEFS[flag];
+        return `
+                <article>
+                    <h4>
+                        ${def.icon} <code>[${flag}]</code> 
+                    </h4>
+                    <p>${def.desc}</p>
+                </article>`;
+    }).join('\n')}
+            </div>
+        </div>    
+    `;
+  }
   function main() {
       const html = document.documentElement;
       const container = document.querySelector('#main');
@@ -1208,6 +1262,7 @@
           pick: changeCharacter,
           // Misc
           about: displayAbout,
+          help: displayHelp,
       };
       html.addEventListener('click', e => {
           const target = e.target;
