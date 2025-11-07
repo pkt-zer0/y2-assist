@@ -22,7 +22,7 @@ export interface BotDefinition {
     difficulty : number;
     normal     : MoveChoiceRow[];
     knockdown  : ChoiceRow;
-    desperate? : OverrideRow
+    desperate? : OverrideRow;
     wakeup?    : ChoiceRow;
     dragon?    : ChoiceRow;
 }

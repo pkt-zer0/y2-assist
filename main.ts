@@ -1,10 +1,16 @@
 import { BOTS } from './bots.js';
-import { applyOverride, BotDefinition, ChoiceRow } from './bots_types.js';
+import {
+    applyOverride,
+    BotDefinition,
+    ChoiceRow,
+    OverrideRow,
+} from './bots_types.js';
 import {
     ArmorType,
     Choice,
     FLAG_DEFS,
     FLAG_NAMES,
+    FlagNames,
     MoveType,
     StrikeHeight,
 } from './types.js';
@@ -328,13 +334,67 @@ function renderAbout() {
 }
 
 function renderHelp() {
+    function possibleChoices(bot: BotDefinition): Choice[] {
+        // Various helpers to flatten the structure
+        function toSingleton(optional: Choice | null | undefined): Choice[] {
+            if (optional) {
+                return [optional];
+            }
+            return [];
+        }
+        function choicesFromRow(row?: ChoiceRow): Choice[] {
+            if (!row) {
+                return [];
+            }
+            return [
+                ...row.choices.flatMap(toSingleton),
+                ...toSingleton(row.hitback),
+            ];
+
+        }
+        function choicesFromOverride(override?: OverrideRow): Choice[] {
+            if (!override) {
+                return [];
+            }
+            return [
+                ...override.choices.flatMap(toSingleton),
+                ...toSingleton(override.hitback),
+            ];
+        }
+
+        // Iterate over all possible choices
+        return [
+            ...bot.normal.flatMap(c => choicesFromRow(c)),
+            ...choicesFromRow(bot.knockdown),
+            ...choicesFromOverride(bot.desperate),
+            ...choicesFromRow(bot.wakeup),
+            ...choicesFromRow(bot.dragon),
+        ];
+    }
+
+    function flagsUsed(bot: BotDefinition): FlagNames[] {
+        const usedFlags = new Set<FlagNames>();
+        for (const choice of possibleChoices(bot)) {
+            for (const flag of FLAG_NAMES) {
+                if (!!choice[flag]) {
+                    usedFlags.add(flag);
+                }
+            }
+        }
+
+        return FLAG_NAMES.filter(flag => {
+            return usedFlags.has(flag);
+        });
+    }
+
+    const usedFlags = chosenBot ? flagsUsed(chosenBot) : [];
     return `
         <div class="screen help">
             <div class="controls">
                 <button data-action="help">Close</button>
             </div>
             <div class="content">            
-            ${FLAG_NAMES.map(flag => {
+            ${usedFlags.map(flag => {
                 const def = FLAG_DEFS[flag];
                 return `
                 <article>
