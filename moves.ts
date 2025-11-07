@@ -27,20 +27,20 @@ export const MOVE_DEFAULTS = {
 export const BLOCK_LOW: Move = {
     ...MOVE_DEFAULTS,
     type: MoveType.BlockLow,
-    drawOnBlock: true,
+    draw: true,
     recur: true,
 };
 export const BLOCK_HIGH: Move = {
     ...MOVE_DEFAULTS,
     type: MoveType.BlockHigh,
-    drawOnBlock: true,
+    draw: true,
     recur: true,
 };
 
 export const BLOCK_FULL: Move = {
     ...MOVE_DEFAULTS,
     type: MoveType.BlockFull,
-    drawOnBlock: true,
+    draw: true,
     recur: true,
 };
 
@@ -165,7 +165,7 @@ function convertShorthand(moveset: MoveSet, moveString: string, overrides: Parti
         level      : first.level,
         height     : first.height,
         recur      : first.recur,
-        drawOnBlock: first.drawOnBlock,
+        draw       : first.draw,
         lockdown   : first.lockdown,
         super      : first.super,
         unsafe     : first.unsafe,

@@ -184,7 +184,7 @@ const bot5: BotDefinition = (function() {
         Y: mProjectile(16,  6, { blockDamage: 6, level: 2, edge: true, lockdown: false }),
         Z: mStrike    (10, 11, { blockDamage: 2, unsafe: true }),
         // Dragon moves
-        b: { ...BLOCK_FULL, drawOnBlock: false, recur: false },
+        b: { ...BLOCK_FULL, draw: false, recur: false },
         x: mProjectile(28,  7, { blockDamage: 6, level: 2, lockdown: false }),
         y: mStrike    (18, 13, { blockDamage: 2, }),
         z: mThrow     (23,  7, { knockdown: false }),
@@ -377,7 +377,7 @@ const bot10: BotDefinition = (function() {
         Y: mProjectile(16,  6, { blockDamage: 6, level: 2, edge: true, lockdown: false }),
         Z: mStrike    (10, 11, { blockDamage: 2, unsafe: true }),
         // Dragon moves
-        b: { ...BLOCK_FULL, drawOnBlock: false, recur: false },
+        b: { ...BLOCK_FULL, draw: false, recur: false },
         x: mProjectile(28,  7, { blockDamage: 6, level: 2, lockdown: false, oblivion: true }),
         y: mStrike    (18, 13, { blockDamage: 2, oblivion: true }),
         z: mThrow     (23,  7, { knockdown: false, oblivion: true }),

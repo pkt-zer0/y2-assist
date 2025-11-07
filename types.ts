@@ -29,7 +29,7 @@ export const FLAG_DEFS = {
     knockdown  : { icon: `KD`,          desc: `Knockdown on hit`},
     recur      : { icon: `RECUR`,       desc: `+1 handsize if not hit`},
     lockdown   : { icon: `LOCK`,        desc: `Prevent draw from block`},
-    drawOnBlock: { icon: `DRAW`,        desc: `+1 handsize if blocked a strike`},
+    draw       : { icon: `DRAW`,        desc: `+1 handsize if blocked a strike`},
     backstep   : { icon: `STEP`,        desc: `Beats normal/special strikes of speed 8 or higher`},
     undodgeable: { icon: `CAN'T DODGE`, desc: `Cannot be dodged`},
     unblockable: { icon: `CAN'T BLOCK`, desc: `Cannot be blocked`},
@@ -54,7 +54,7 @@ interface CommonMoveProps {
 
     // Various optional flags
     recur?      : boolean  // draw if not hit
-    drawOnBlock?: boolean; // draw if strike blocked
+    draw?       : boolean; // draw if strike blocked
     knockdown?  : boolean;
     edge?       : boolean;
     lockdown?   : boolean; // prevent draw on block

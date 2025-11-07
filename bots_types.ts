@@ -69,7 +69,7 @@ export function removeHandsizeChanges(input: ChoiceRow): ChoiceRow {
     return modifyRow(input, c => {
         c.adjust = 0;
         c.recur = false;
-        c.drawOnBlock = false;
+        c.draw = false;
         return c;
     });
 }
