@@ -41,6 +41,20 @@ const bot1: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Glass Monk',
         difficulty: 1,
+        health: 90,
+        abilities: [{
+            name: 'Mental Break', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally broken" (and this count resets to zero). In the next combat,
+            it rolls for its move first, then human players choose their combat moves.`
+        }, {
+            name: 'Desperate Supers', description: `
+            Whenever the bot goes below 50% of its starting hit points, it taunts
+            in the following combat by performing a normal dodge (with no followup) instead of rolling for its move.
+            
+            For the rest of the game, while it's not knocked down, it performs S1 on a roll of 5-8 instead of its usual move.
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 't'   , 'BZ'  , 'ZC'  , 'X'    , 'X' ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'ABC' , 'Y'   , 'X'    , 'X' ], hitback: 'Y' },
@@ -78,6 +92,17 @@ const bot2: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Fox Primus',
         difficulty: 2,
+        health: 70,
+        abilities: [{
+            name: 'Mental Stress', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally stressed" (and this count resets to zero). You gain the edge. 
+            `
+        }, {
+            name: `Fox's Cunning`, description: `
+            If the bot would go below 5 hand cards, instead set it to hand size 10.
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['tB', 'tC' , 'AB'     , 'AB'     , 'AB'    , 'CD'    , 'CD'     , 'dt'   ], hitback: 'tC'     },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'      , 't'      , 'BCD'   , 'CDE'   , 'dY++'   , 'dY++' ], hitback: 'CDE'    },
@@ -114,6 +139,13 @@ const bot3: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Colossus',
         difficulty: 3,
+        health: 100,
+        abilities: [{
+            name: 'Grappler Instinct', description: `
+            Whenever you block, the bot rolls twice for its move and chooses the outcome more favorable to it
+            (always choosing to deal the most damage it can).
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h' , 'l' , 'h' , 't' , 't'   , 'A'   , 'EF'  ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h' , 'l' , 't' , 'Z' , 'AXD' , 'CDE' , 'EF'  ], hitback: 't' },
@@ -154,6 +186,19 @@ const bot4: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Twilight Baron',
         difficulty: 4,
+        health: 90,
+        abilities: [{
+            name: 'Yomi Layers', description: `
+            While the bot has a hand size of 9 or more, it rolls twice each combat,
+            then picks the move most favorable to it (always choosing to deal the most damage it can).
+            `
+        }, {
+            name: 'Moral Superiority', description: `
+            Whenever the bot hits you, it deals bonus damage to you if it has a smaller hand size than yours.
+            The bonus damage is twice the difference between your hand size and its,
+            computed after its hand adjustment for the turn.
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l'    , 'h'    , 'l'    , 't'   , 't'   , 'AB'    , 'AB'    , 'Y'     ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l'    , 'h'    , 'l'    , 't'   , 'YEF' , 'YEF'   , 'Y'     , 'Y'     ], hitback: 'Y' },
@@ -196,6 +241,19 @@ const bot5: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Dragonborn Centurion',
         difficulty: 5,
+        health: 95,
+        abilities: [{
+            name: 'Eye of the Dragon', description: `
+            While the bot has a hand size of 9 or more or is in Dragon Form, it rolls twice each combat,
+            then picks the move most favorable to it (always choosing to deal the most damage it can).
+            `
+        }, {
+            name: 'Dragon Form', description: `
+            Whenever the bot hits you in two consecutive combats where it doesn't get hit,
+            it transforms into a dragon. It then uses the Dragon Form mode for its moves regardless of hand size.
+            Whenever the dragon is knocked down, it revers to its human form (and no longer uses Dragon Form mode). 
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'DE'  , 'X' , 'Y'  ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'Z'   , 'X' , 'Y'  ], hitback: 'Y' },
@@ -237,6 +295,24 @@ const bot6: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Soothing Monk',
         difficulty: 1,
+        health: 70,
+        abilities: [{
+            name: 'Self Heal', description: `
+            The bot heals 2 damage at the start of each of its turns.
+            `
+        }, {
+            name: 'Mental Break', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally broken" (and this count resets to zero). In the next combat,
+            it rolls for its move first, then human players choose their combat moves.`
+        }, {
+            name: 'Desperate Supers', description: `
+            Whenever the bot goes below 50% of its starting hit points, it taunts
+            in the following combat by performing a normal dodge (with no followup) instead of rolling for its move.
+            
+            For the rest of the game, while it's not knocked down, it performs S1 on a roll of 5-8 instead of its usual move.
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l'  , 'h'  , 'l'   , 't'   , 'AB'   ,  BZ    , 'X' , 'X'  ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l'  , 'h'  , 'l'   , 't'   ,  ABZ   , 'Y+E'  , 'X' , 'X'  ], hitback: 't' },
@@ -273,6 +349,18 @@ const bot7: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Whitestar Grappler',
         difficulty: 2,
+        health: 90,
+        abilities: [{
+            name: 'Mental Stress', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally stressed" (and this count resets to zero). You gain the edge. 
+            `
+        }, {
+            name: 'Grappler Instinct', description: `
+            Whenever you block, the bot rolls twice for its move and chooses the outcome more favorable to it
+            (always choosing to deal the most damage it can).
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h'  , 'l'   , 'h'   , 't'   , 't'   , 'AB'   , 'DE'   ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'   , 't'   , 'Z'   , 'X'   , 'ABC'  , 'DE'   ], hitback: 't' },
@@ -308,6 +396,13 @@ const bot8: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Ancient Hero',
         difficulty: 3,
+        health: 90,
+        abilities: [{
+            name: 'Guard Crush', description: `
+            Whenever the bot has the edge and you block its attack, 
+            the bot's attack switches to become a 15 damage unblockable strike. 
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l'   , 'h'   , 'l'   , 'h'  , 'dG'  , 't'   , 'C'  , 'E' ], hitback: 'C'  },
             { min: 7,  max: 8,  choices: ['l'   , 'h'   , 'l'   , 'dG' , 't+'  , 'A'   , 'C+' , 'E+'], hitback: 'C'  },
@@ -347,6 +442,17 @@ const bot9: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Jandra, the Negator',
         difficulty: 4,
+        health: 85,
+        abilities: [{
+            name: 'Yomi Layers', description: `
+            While the bot has a hand size of 9 or more, it rolls twice each combat,
+            then picks the move most favorable to it (always choosing to deal the most damage it can).
+            `
+        }, {
+            name: 'Shadow Plague', description: `
+            During your draw phase, the bot gets +2 hand size and takes 4 damage.
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['tB', 'tC' , 'AB'     , 'AB'     , 'AB'    , 'CD'   , 'CD'    , dt  ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h'  , 'l'      , 't'      , 'BCD'   , 'CDE'  , 'dZ+'   , 'dZ+' ], hitback: 't' },
@@ -389,6 +495,14 @@ const bot10: BotDefinition = (function() {
     return bot(MOVES, {
         name: 'Dragonborn Firebat',
         difficulty: 5,
+        health: 95,
+        abilities: [{
+            name: 'Dragon Form', description: `
+            Whenever the bot hits you in two consecutive combats where it doesn't get hit,
+            it transforms into a dragon. It then uses the Dragon Form mode for its moves regardless of hand size.
+            Whenever the dragon is knocked down, it revers to its human form (and no longer uses Dragon Form mode). 
+            `
+        }],
         normal: [
             { min: 5,  max: 6,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'DE'  , 'X' , 'Y'  ], hitback: 't' },
             { min: 7,  max: 8,  choices: ['l' , 'h' , 'l'   , 't'   , 'AB'  , 'Z'   , 'X' , 'Y'  ], hitback: 'Y' },

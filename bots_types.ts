@@ -17,9 +17,16 @@ export type OverrideRow = {
 }
 
 type MoveChoiceRow = HandSizeRange & ChoiceRow;
+
+export type Ability = {
+    name: string;
+    description: string;
+}
 export interface BotDefinition {
     name       : string;
     difficulty : number;
+    health     : number;
+    abilities  : Ability[],
     normal     : MoveChoiceRow[];
     knockdown  : ChoiceRow;
     desperate? : OverrideRow;
@@ -77,6 +84,8 @@ export function removeHandsizeChanges(input: ChoiceRow): ChoiceRow {
 export type BotShorthand = {
     name: string,
     difficulty: number,
+    health: number,
+    abilities: Ability[],
     normal: Array<{
         min: number, max: number, choices: ChoiceInit[], hitback: ChoiceInit
     }>,
@@ -94,6 +103,8 @@ export function bot(moveset: MoveSet, init: BotShorthand): BotDefinition {
     return {
         name: init.name,
         difficulty: init.difficulty,
+        health: init.health,
+        abilities: init.abilities,
         normal: init.normal.map(i => ({
             minHand: i.min,
             maxHand: i.max,

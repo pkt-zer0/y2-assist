@@ -75,6 +75,27 @@
             display: flex;
             flex-direction: column;
 
+            .charinfo, .splitter {
+                padding: 0.5rem 1rem;
+                background-color: #444;
+            }
+
+            .splitter {
+                text-align: center;
+                font-variant: small-caps;
+                font-weight: bold;
+            }
+
+            .charinfo {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+
+                .health {
+                    font-size: 2em;
+                }
+            }
             .content {
                 overflow-y: auto;
             }
@@ -263,7 +284,7 @@
       knockdown: { icon: `KD`, desc: `Knockdown on hit` },
       recur: { icon: `RECUR`, desc: `+1 handsize if not hit` },
       lockdown: { icon: `LOCK`, desc: `Prevent draw from block` },
-      drawOnBlock: { icon: `DRAW`, desc: `+1 handsize if blocked a strike` },
+      draw: { icon: `DRAW`, desc: `+1 handsize if blocked a strike` },
       backstep: { icon: `STEP`, desc: `Beats normal/special strikes of speed 8 or higher` },
       undodgeable: { icon: `CAN'T DODGE`, desc: `Cannot be dodged` },
       unblockable: { icon: `CAN'T BLOCK`, desc: `Cannot be blocked` },
@@ -296,19 +317,19 @@
   const BLOCK_LOW = {
       ...MOVE_DEFAULTS,
       type: MoveType.BlockLow,
-      drawOnBlock: true,
+      draw: true,
       recur: true,
   };
   const BLOCK_HIGH = {
       ...MOVE_DEFAULTS,
       type: MoveType.BlockHigh,
-      drawOnBlock: true,
+      draw: true,
       recur: true,
   };
   const BLOCK_FULL = {
       ...MOVE_DEFAULTS,
       type: MoveType.BlockFull,
-      drawOnBlock: true,
+      draw: true,
       recur: true,
   };
   function mStrike(damage, speed, overrides = {}) {
@@ -413,7 +434,7 @@
           level: first.level,
           height: first.height,
           recur: first.recur,
-          drawOnBlock: first.drawOnBlock,
+          draw: first.draw,
           lockdown: first.lockdown,
           super: first.super,
           unsafe: first.unsafe,
@@ -503,7 +524,7 @@
       return modifyRow(input, c => {
           c.adjust = 0;
           c.recur = false;
-          c.drawOnBlock = false;
+          c.draw = false;
           return c;
       });
   }
@@ -513,6 +534,8 @@
       return {
           name: init.name,
           difficulty: init.difficulty,
+          health: init.health,
+          abilities: init.abilities,
           normal: init.normal.map(i => ({
               minHand: i.min,
               maxHand: i.max,
@@ -561,6 +584,20 @@
       return bot(MOVES, {
           name: 'Glass Monk',
           difficulty: 1,
+          health: 90,
+          abilities: [{
+                  name: 'Mental Break', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally broken" (and this count resets to zero). In the next combat,
+            it rolls for its move first, then human players choose their combat moves.`
+              }, {
+                  name: 'Desperate Supers', description: `
+            Whenever the bot goes below 50% of its starting hit points, it taunts
+            in the following combat by performing a normal dodge (with no followup) instead of rolling for its move.
+            
+            For the rest of the game, while it's not knocked down, it performs S1 on a roll of 5-8 instead of its usual move.
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 'BZ', 'ZC', 'X', 'X'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'ABC', 'Y', 'X', 'X'], hitback: 'Y' },
@@ -596,6 +633,17 @@
       return bot(MOVES, {
           name: 'Fox Primus',
           difficulty: 2,
+          health: 70,
+          abilities: [{
+                  name: 'Mental Stress', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally stressed" (and this count resets to zero). You gain the edge. 
+            `
+              }, {
+                  name: `Fox's Cunning`, description: `
+            If the bot would go below 5 hand cards, instead set it to hand size 10.
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['tB', 'tC', 'AB', 'AB', 'AB', 'CD', 'CD', 'dt'], hitback: 'tC' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'BCD', 'CDE', 'dY++', 'dY++'], hitback: 'CDE' },
@@ -630,6 +678,13 @@
       return bot(MOVES, {
           name: 'Colossus',
           difficulty: 3,
+          health: 100,
+          abilities: [{
+                  name: 'Grappler Instinct', description: `
+            Whenever you block, the bot rolls twice for its move and chooses the outcome more favorable to it
+            (always choosing to deal the most damage it can).
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 'h', 't', 't', 'A', 'EF'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'Z', 'AXD', 'CDE', 'EF'], hitback: 't' },
@@ -667,6 +722,19 @@
       return bot(MOVES, {
           name: 'Twilight Baron',
           difficulty: 4,
+          health: 90,
+          abilities: [{
+                  name: 'Yomi Layers', description: `
+            While the bot has a hand size of 9 or more, it rolls twice each combat,
+            then picks the move most favorable to it (always choosing to deal the most damage it can).
+            `
+              }, {
+                  name: 'Moral Superiority', description: `
+            Whenever the bot hits you, it deals bonus damage to you if it has a smaller hand size than yours.
+            The bonus damage is twice the difference between your hand size and its,
+            computed after its hand adjustment for the turn.
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 't', 'AB', 'AB', 'Y'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'YEF', 'YEF', 'Y', 'Y'], hitback: 'Y' },
@@ -696,7 +764,7 @@
           Y: mProjectile(16, 6, { blockDamage: 6, level: 2, edge: true, lockdown: false }),
           Z: mStrike(10, 11, { blockDamage: 2, unsafe: true }),
           // Dragon moves
-          b: { ...BLOCK_FULL, drawOnBlock: false, recur: false },
+          b: { ...BLOCK_FULL, draw: false, recur: false },
           x: mProjectile(28, 7, { blockDamage: 6, level: 2, lockdown: false }),
           y: mStrike(18, 13, { blockDamage: 2, }),
           z: mThrow(23, 7, { knockdown: false }),
@@ -707,6 +775,19 @@
       return bot(MOVES, {
           name: 'Dragonborn Centurion',
           difficulty: 5,
+          health: 95,
+          abilities: [{
+                  name: 'Eye of the Dragon', description: `
+            While the bot has a hand size of 9 or more or is in Dragon Form, it rolls twice each combat,
+            then picks the move most favorable to it (always choosing to deal the most damage it can).
+            `
+              }, {
+                  name: 'Dragon Form', description: `
+            Whenever the bot hits you in two consecutive combats where it doesn't get hit,
+            it transforms into a dragon. It then uses the Dragon Form mode for its moves regardless of hand size.
+            Whenever the dragon is knocked down, it revers to its human form (and no longer uses Dragon Form mode). 
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 'AB', 'DE', 'X', 'Y'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'AB', 'Z', 'X', 'Y'], hitback: 'Y' },
@@ -745,6 +826,24 @@
       return bot(MOVES, {
           name: 'Soothing Monk',
           difficulty: 1,
+          health: 70,
+          abilities: [{
+                  name: 'Self Heal', description: `
+            The bot heals 2 damage at the start of each of its turns.
+            `
+              }, {
+                  name: 'Mental Break', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally broken" (and this count resets to zero). In the next combat,
+            it rolls for its move first, then human players choose their combat moves.`
+              }, {
+                  name: 'Desperate Supers', description: `
+            Whenever the bot goes below 50% of its starting hit points, it taunts
+            in the following combat by performing a normal dodge (with no followup) instead of rolling for its move.
+            
+            For the rest of the game, while it's not knocked down, it performs S1 on a roll of 5-8 instead of its usual move.
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 'AB', BZ, 'X', 'X'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', ABZ, 'Y+E', 'X', 'X'], hitback: 't' },
@@ -779,6 +878,18 @@
       return bot(MOVES, {
           name: 'Whitestar Grappler',
           difficulty: 2,
+          health: 90,
+          abilities: [{
+                  name: 'Mental Stress', description: `
+            Whenever you hit the bot in two consecutive combats where you don't get hit,
+            the bot is "mentally stressed" (and this count resets to zero). You gain the edge. 
+            `
+              }, {
+                  name: 'Grappler Instinct', description: `
+            Whenever you block, the bot rolls twice for its move and chooses the outcome more favorable to it
+            (always choosing to deal the most damage it can).
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 'h', 't', 't', 'AB', 'DE'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'Z', 'X', 'ABC', 'DE'], hitback: 't' },
@@ -812,6 +923,13 @@
       return bot(MOVES, {
           name: 'Ancient Hero',
           difficulty: 3,
+          health: 90,
+          abilities: [{
+                  name: 'Guard Crush', description: `
+            Whenever the bot has the edge and you block its attack, 
+            the bot's attack switches to become a 15 damage unblockable strike. 
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 'h', 'dG', 't', 'C', 'E'], hitback: 'C' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 'dG', 't+', 'A', 'C+', 'E+'], hitback: 'C' },
@@ -848,6 +966,17 @@
       return bot(MOVES, {
           name: 'Jandra, the Negator',
           difficulty: 4,
+          health: 85,
+          abilities: [{
+                  name: 'Yomi Layers', description: `
+            While the bot has a hand size of 9 or more, it rolls twice each combat,
+            then picks the move most favorable to it (always choosing to deal the most damage it can).
+            `
+              }, {
+                  name: 'Shadow Plague', description: `
+            During your draw phase, the bot gets +2 hand size and takes 4 damage.
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['tB', 'tC', 'AB', 'AB', 'AB', 'CD', 'CD', dt], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'BCD', 'CDE', 'dZ+', 'dZ+'], hitback: 't' },
@@ -877,7 +1006,7 @@
           Y: mProjectile(16, 6, { blockDamage: 6, level: 2, edge: true, lockdown: false }),
           Z: mStrike(10, 11, { blockDamage: 2, unsafe: true }),
           // Dragon moves
-          b: { ...BLOCK_FULL, drawOnBlock: false, recur: false },
+          b: { ...BLOCK_FULL, draw: false, recur: false },
           x: mProjectile(28, 7, { blockDamage: 6, level: 2, lockdown: false, oblivion: true }),
           y: mStrike(18, 13, { blockDamage: 2, oblivion: true }),
           z: mThrow(23, 7, { knockdown: false, oblivion: true }),
@@ -888,6 +1017,14 @@
       return bot(MOVES, {
           name: 'Dragonborn Firebat',
           difficulty: 5,
+          health: 95,
+          abilities: [{
+                  name: 'Dragon Form', description: `
+            Whenever the bot hits you in two consecutive combats where it doesn't get hit,
+            it transforms into a dragon. It then uses the Dragon Form mode for its moves regardless of hand size.
+            Whenever the dragon is knocked down, it revers to its human form (and no longer uses Dragon Form mode). 
+            `
+              }],
           normal: [
               { min: 5, max: 6, choices: ['l', 'h', 'l', 't', 'AB', 'DE', 'X', 'Y'], hitback: 't' },
               { min: 7, max: 8, choices: ['l', 'h', 'l', 't', 'AB', 'Z', 'X', 'Y'], hitback: 'Y' },
@@ -942,6 +1079,7 @@
           chosenBotID = parseInt(chosen, 10);
           chosenBot = BOTS[chosenBotID];
           showPicker = false;
+          showHelp = true;
           save();
           // Reset match state
           handSize = 9;
@@ -1203,21 +1341,90 @@
     `;
   }
   function renderHelp() {
+      function possibleChoices(bot) {
+          // Various helpers to flatten the structure
+          function toSingleton(optional) {
+              if (optional) {
+                  return [optional];
+              }
+              return [];
+          }
+          function choicesFromRow(row) {
+              if (!row) {
+                  return [];
+              }
+              return [
+                  ...row.choices.flatMap(toSingleton),
+                  ...toSingleton(row.hitback),
+              ];
+          }
+          function choicesFromOverride(override) {
+              if (!override) {
+                  return [];
+              }
+              return [
+                  ...override.choices.flatMap(toSingleton),
+                  ...toSingleton(override.hitback),
+              ];
+          }
+          // Iterate over all possible choices
+          return [
+              ...bot.normal.flatMap(c => choicesFromRow(c)),
+              ...choicesFromRow(bot.knockdown),
+              ...choicesFromOverride(bot.desperate),
+              ...choicesFromRow(bot.wakeup),
+              ...choicesFromRow(bot.dragon),
+          ];
+      }
+      function flagsUsed(bot) {
+          const usedFlags = new Set();
+          for (const choice of possibleChoices(bot)) {
+              for (const flag of FLAG_NAMES) {
+                  if (!!choice[flag]) {
+                      usedFlags.add(flag);
+                  }
+              }
+          }
+          return FLAG_NAMES.filter(flag => {
+              return usedFlags.has(flag);
+          });
+      }
+      if (!chosenBot) {
+          throw Error('Invalid state: Help screen should only be openable after choosing a bot.');
+      }
       return `
         <div class="screen help">
             <div class="controls">
                 <button data-action="help">Close</button>
             </div>
+            <div class="charinfo">
+                <div class="name">
+                    ${chosenBot.name} <br>
+                    ${starsFor(chosenBot.difficulty)}                
+                </div>
+                <div class="health"> ❤ ${chosenBot.health} </div>
+            </div>
             <div class="content">            
-            ${FLAG_NAMES.map(flag => {
+                <div class="abilities">
+                    ${chosenBot.abilities.map(ability => `
+                        <article>
+                            <h4>${ability.name}</h4>
+                            <p>${ability.description}</p>
+                        </article>
+                    `).join('\n')}
+                </div>
+                <div class="splitter">
+                    Trait shorthands
+                </div>
+                ${flagsUsed(chosenBot).map(flag => {
         const def = FLAG_DEFS[flag];
         return `
-                <article>
-                    <h4>
-                        ${def.icon} <code>[${flag}]</code> 
-                    </h4>
-                    <p>${def.desc}</p>
-                </article>`;
+                    <article>
+                        <h4>
+                            ${def.icon} <code>[${flag}]</code> 
+                        </h4>
+                        <p>${def.desc}</p>
+                    </article>`;
     }).join('\n')}
             </div>
         </div>    

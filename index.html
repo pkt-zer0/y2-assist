@@ -75,6 +75,27 @@
             display: flex;
             flex-direction: column;
 
+            .charinfo, .splitter {
+                padding: 0.5rem 1rem;
+                background-color: #444;
+            }
+
+            .splitter {
+                text-align: center;
+                font-variant: small-caps;
+                font-weight: bold;
+            }
+
+            .charinfo {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+
+                .health {
+                    font-size: 2em;
+                }
+            }
             .content {
                 overflow-y: auto;
             }

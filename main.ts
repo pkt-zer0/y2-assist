@@ -52,6 +52,7 @@ const changeCharacter = (data: DOMStringMap) => {
         chosenBotID = parseInt(chosen, 10);
         chosenBot = BOTS[chosenBotID];
         showPicker = false;
+        showHelp = true;
         save();
 
         // Reset match state
@@ -387,23 +388,44 @@ function renderHelp() {
         });
     }
 
-    const usedFlags = chosenBot ? flagsUsed(chosenBot) : [];
+    if (!chosenBot) {
+        throw Error('Invalid state: Help screen should only be openable after choosing a bot.');
+    }
+
     return `
         <div class="screen help">
             <div class="controls">
                 <button data-action="help">Close</button>
             </div>
+            <div class="charinfo">
+                <div class="name">
+                    ${chosenBot.name} <br>
+                    ${starsFor(chosenBot.difficulty)}                
+                </div>
+                <div class="health"> ❤ ${chosenBot.health} </div>
+            </div>
             <div class="content">            
-            ${usedFlags.map(flag => {
-                const def = FLAG_DEFS[flag];
-                return `
-                <article>
-                    <h4>
-                        ${def.icon} <code>[${flag}]</code> 
-                    </h4>
-                    <p>${def.desc}</p>
-                </article>`;
-            }).join('\n')}
+                <div class="abilities">
+                    ${chosenBot.abilities.map(ability => `
+                        <article>
+                            <h4>${ability.name}</h4>
+                            <p>${ability.description}</p>
+                        </article>
+                    `).join('\n')}
+                </div>
+                <div class="splitter">
+                    Trait shorthands
+                </div>
+                ${flagsUsed(chosenBot).map(flag => {
+                    const def = FLAG_DEFS[flag];
+                    return `
+                    <article>
+                        <h4>
+                            ${def.icon} <code>[${flag}]</code> 
+                        </h4>
+                        <p>${def.desc}</p>
+                    </article>`;
+                }).join('\n')}
             </div>
         </div>    
     `;
