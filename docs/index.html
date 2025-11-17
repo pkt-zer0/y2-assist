@@ -293,6 +293,20 @@
       transform: { icon: `DRAGON`, desc: `Transforms into a dragon` },
   };
   const FLAG_NAMES = Object.keys(FLAG_DEFS);
+  // Flags that are not just a true/false boolean. Should probably be rolled into "regular" flags
+  const armorComment = ` <br> (If your faster attack hits the bot's armored attack, your attack can't combo, pump, or knock the bot down. Then the bot's attack hits you.)`;
+  const SPECIAL_FLAGS = {
+      armorL: { icon: `[L]`, desc: `Has armor versus A, B, C normal attacks.` + armorComment },
+      armorM: { icon: `[M]`, desc: `Has armor versus normal attacks.` + armorComment },
+      armorH: { icon: `[H]`, desc: `Has armor versus normal and special attacks.` + armorComment },
+      selfDamage: { icon: `(X) SELF DMG`, desc: `The bot takes (X) damage` },
+      selfHeal: { icon: `(X) SELF HEAL`, desc: `The bot heals (X) damage` },
+  };
+  const ALL_FLAG_DEFS = {
+      ...FLAG_DEFS,
+      ...SPECIAL_FLAGS,
+  };
+  const ALL_FLAG_NAMES = Object.keys(ALL_FLAG_DEFS);
   /* Move description shorthand (case sensitive):
     - A..J : normals
     - t, l, h, b, d: throw, low/high/full block, dodge
@@ -1384,8 +1398,23 @@
                       usedFlags.add(flag);
                   }
               }
+              if (choice.armor === ArmorType.Light) {
+                  usedFlags.add('armorL');
+              }
+              if (choice.armor === ArmorType.Medium) {
+                  usedFlags.add('armorM');
+              }
+              if (choice.armor === ArmorType.Heavy) {
+                  usedFlags.add('armorH');
+              }
+              if (choice.selfDamage) {
+                  usedFlags.add('selfDamage');
+              }
+              if (choice.selfHeal) {
+                  usedFlags.add('selfHeal');
+              }
           }
-          return FLAG_NAMES.filter(flag => {
+          return ALL_FLAG_NAMES.filter(flag => {
               return usedFlags.has(flag);
           });
       }
@@ -1417,7 +1446,7 @@
                     Trait shorthands
                 </div>
                 ${flagsUsed(chosenBot).map(flag => {
-        const def = FLAG_DEFS[flag];
+        const def = ALL_FLAG_DEFS[flag];
         return `
                     <article>
                         <h4>

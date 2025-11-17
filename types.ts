@@ -40,6 +40,25 @@ export const FLAG_DEFS = {
 export type FlagNames = keyof typeof FLAG_DEFS;
 export const FLAG_NAMES = Object.keys(FLAG_DEFS) as FlagNames[];
 
+// Flags that are not just a true/false boolean. Should probably be rolled into "regular" flags
+const armorComment = ` <br> (If your faster attack hits the bot's armored attack, your attack can't combo, pump, or knock the bot down. Then the bot's attack hits you.)`;
+export const SPECIAL_FLAGS = {
+    armorL: { icon: `[L]`, desc: `Has armor versus A, B, C normal attacks.` + armorComment },
+    armorM: { icon: `[M]`, desc: `Has armor versus normal attacks.` + armorComment },
+    armorH: { icon: `[H]`, desc: `Has armor versus normal and special attacks.` + armorComment },
+
+    selfDamage: { icon: `(X) SELF DMG`,  desc: `The bot takes (X) damage` },
+    selfHeal:   { icon: `(X) SELF HEAL`, desc: `The bot heals (X) damage` },
+};
+export type SpecialFlagNames = keyof typeof SPECIAL_FLAGS;
+export type UsedFlagNames = SpecialFlagNames | FlagNames;
+
+export const ALL_FLAG_DEFS = {
+    ...FLAG_DEFS,
+    ...SPECIAL_FLAGS,
+};
+export const ALL_FLAG_NAMES = Object.keys(ALL_FLAG_DEFS) as UsedFlagNames[];
+
 interface CommonMoveProps {
     type        : MoveType;
     damage      : number;

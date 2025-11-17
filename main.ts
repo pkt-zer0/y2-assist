@@ -6,13 +6,15 @@ import {
     OverrideRow,
 } from './bots_types.js';
 import {
+    ALL_FLAG_DEFS,
+    ALL_FLAG_NAMES,
     ArmorType,
     Choice,
     FLAG_DEFS,
     FLAG_NAMES,
-    FlagNames,
     MoveType,
     StrikeHeight,
+    UsedFlagNames,
 } from './types.js';
 
 //-- State --
@@ -373,17 +375,24 @@ function renderHelp() {
         ];
     }
 
-    function flagsUsed(bot: BotDefinition): FlagNames[] {
-        const usedFlags = new Set<FlagNames>();
+    function flagsUsed(bot: BotDefinition): UsedFlagNames[] {
+        const usedFlags = new Set<UsedFlagNames>();
         for (const choice of possibleChoices(bot)) {
             for (const flag of FLAG_NAMES) {
                 if (!!choice[flag]) {
                     usedFlags.add(flag);
                 }
             }
+
+            if (choice.armor === ArmorType.Light)  { usedFlags.add('armorL'); }
+            if (choice.armor === ArmorType.Medium) { usedFlags.add('armorM'); }
+            if (choice.armor === ArmorType.Heavy)  { usedFlags.add('armorH'); }
+
+            if (choice.selfDamage) { usedFlags.add('selfDamage'); }
+            if (choice.selfHeal)   { usedFlags.add('selfHeal'); }
         }
 
-        return FLAG_NAMES.filter(flag => {
+        return ALL_FLAG_NAMES.filter(flag => {
             return usedFlags.has(flag);
         });
     }
@@ -417,7 +426,7 @@ function renderHelp() {
                     Trait shorthands
                 </div>
                 ${flagsUsed(chosenBot).map(flag => {
-                    const def = FLAG_DEFS[flag];
+                    const def = ALL_FLAG_DEFS[flag];
                     return `
                     <article>
                         <h4>
