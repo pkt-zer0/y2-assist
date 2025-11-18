@@ -14,3 +14,9 @@ all CSS and JS content included directly. For the JS part, this has a few steps:
     (seems like `tsc` doesn't support this out-of-the-box anymore?)  
 - This file is inlined into `index.html` by `builder.js`
 - All of this goes under `docs`, to be deployed as GitHub Pages
+
+# Design notes
+
+- The Screen Wake Lock API on iOS seems... finicky, to say the least. It only
+  works when triggered by "user interaction", however that's defined. So now
+  it's initialized whenever any event handler is triggered.

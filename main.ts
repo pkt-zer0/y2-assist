@@ -16,6 +16,7 @@ import {
     StrikeHeight,
     UsedFlagNames,
 } from './types.js';
+import { initWakeLock } from './wake.js';
 
 //-- State --
 
@@ -492,6 +493,8 @@ function main() {
             if (handler) {
                 handler(target.dataset);
                 render();
+                // Workaround to ensure init happens in "user interaction"
+                initWakeLock().then(); // Background process, ignore return
             }
         }
     });
