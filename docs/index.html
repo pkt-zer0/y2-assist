@@ -144,6 +144,22 @@
             background: var(--button-bg-on);
             color: var(--button-fg-on);
         }
+
+        .roller {
+            display: flex;
+            height: 100%;
+            animation: roll 1s linear infinite;
+            transform-origin: center;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+        }
+        @keyframes roll {
+            100% {
+                transform:rotate(360deg);
+            }
+        }
+
         .move {
             position: relative;
             width: 75vw;
@@ -1101,6 +1117,8 @@
       document.addEventListener('fullscreenchange', onVisibilityChange);
   }
 
+  //-- Globals --
+  let rerender = function () { }; // Hack to allow rendering from various handlers
   //-- State --
   let handSize = 9;
   let choiceIndex = 0;
@@ -1112,10 +1130,10 @@
   let showPicker = true;
   let showAbout = false;
   let showHelp = false;
+  let showRoll = false;
   //-- Actions --
   const choiceLeft = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
   const choiceRight = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
-  const choiceRandom = () => { choiceIndex = Math.floor(Math.random() * 8); };
   const handsizeDown = () => { handSize = clamp(handSize - 1, 5, 12); };
   const handsizeUp = () => { handSize = clamp(handSize + 1, 5, 12); };
   const toggleKnockdown = () => { mode = mode ? '' : 'knockdown'; };
@@ -1141,6 +1159,14 @@
           hitback = false;
           desperate = false;
       }
+  };
+  const choiceRandom = () => {
+      choiceIndex = Math.floor(Math.random() * 8);
+      showRoll = true;
+      setTimeout(() => {
+          showRoll = false;
+          rerender();
+      }, 1000);
   };
   //-- Persistence --
   const STORAGE_KEY = 'y2_assist';
@@ -1215,6 +1241,9 @@
       }
   }
   function renderMove(choice) {
+      if (showRoll) {
+          return `<div class="roller"> ? </div>`;
+      }
       const { type, damage, firstDamage, blockDamage, speed, adjust, always, height, level, description, armor, selfDamage, selfHeal } = choice;
       const hasGap = type === MoveType.BlockLow || type === MoveType.BlockHigh;
       const gapPosition = type === MoveType.BlockHigh ? '50%' : '0';
@@ -1557,6 +1586,7 @@
       // Rerender with initial state
       load();
       render();
+      rerender = render; // Expose rendering trigger to animations
   }
   document.addEventListener('DOMContentLoaded', main);
 

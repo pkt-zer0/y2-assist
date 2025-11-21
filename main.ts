@@ -18,6 +18,9 @@ import {
 } from './types.js';
 import { initWakeLock } from './wake.js';
 
+//-- Globals --
+let rerender = function() {}; // Hack to allow rendering from various handlers
+
 //-- State --
 
 let handSize = 9;
@@ -31,12 +34,12 @@ let chosenBot: BotDefinition | undefined = undefined;
 let showPicker = true;
 let showAbout  = false;
 let showHelp   = false;
+let showRoll   = false;
 
 //-- Actions --
 
 const choiceLeft   = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
 const choiceRight  = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
-const choiceRandom = () => { choiceIndex = Math.floor(Math.random() * 8); };
 const handsizeDown = () => { handSize    = clamp(handSize - 1, 5, 12); };
 const handsizeUp   = () => { handSize    = clamp(handSize + 1, 5, 12); };
 
@@ -65,6 +68,14 @@ const changeCharacter = (data: DOMStringMap) => {
         hitback = false;
         desperate = false;
     }
+};
+const choiceRandom = () => {
+    choiceIndex = Math.floor(Math.random() * 8);
+    showRoll = true;
+    setTimeout(() => {
+        showRoll = false;
+        rerender();
+    }, 1000);
 };
 
 //-- Persistence --
@@ -146,6 +157,10 @@ function heightStyle(height: StrikeHeight) {
 }
 
 function renderMove(choice: Choice) {
+    if (showRoll) {
+        return `<div class="roller"> ? </div>`;
+    }
+
     const {
         type, damage, firstDamage, blockDamage, speed, adjust, always,
         height, level, description, armor,
@@ -506,6 +521,8 @@ function main() {
     // Rerender with initial state
     load();
     render();
+
+    rerender = render; // Expose rendering trigger to animations
 }
 
 document.addEventListener('DOMContentLoaded', main);

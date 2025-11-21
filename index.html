@@ -144,6 +144,22 @@
             background: var(--button-bg-on);
             color: var(--button-fg-on);
         }
+
+        .roller {
+            display: flex;
+            height: 100%;
+            animation: roll 1s linear infinite;
+            transform-origin: center;
+            justify-content: center;
+            align-items: center;
+            font-size: 4em;
+        }
+        @keyframes roll {
+            100% {
+                transform:rotate(360deg);
+            }
+        }
+
         .move {
             position: relative;
             width: 75vw;
