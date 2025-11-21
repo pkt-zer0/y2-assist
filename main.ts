@@ -273,12 +273,13 @@ function renderBot(bot: BotDefinition | undefined) {
         <div class="screen main">
             <div class="header">
                 <button class="fixed" data-action="about">About</button>
+                <span>[${handSize}] / ${choiceText}</span>
                 <button class="fixed" data-action="help">Help</button>
             </div>
             <div class="header">
-                <span>[${handSize}] / ${choiceText}</span>
-                <span> ${(bot.name)}</span>
-                <button class="fixed" data-action="picker">Change</button>
+                <button class="large" data-action="picker">
+                    ${(bot.name)}
+                </button>
             </div>
             <div class="move"> ${renderMove(choice)} </div>
             <div class="toggles">
