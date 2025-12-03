@@ -22,58 +22,61 @@ import { initWakeLock } from './wake.js';
 let rerender = function() {}; // Hack to allow rendering from various handlers
 
 //-- State --
+class AppState {
+    handSize = 9;
+    choiceIndex = 0;
+    mode = '';
+    hitback = false;
+    desperate = false;
 
-let handSize = 9;
-let choiceIndex = 0;
-let mode = '';
-let hitback = false;
-let desperate = false;
+    chosenBotID: number | undefined = undefined;
+    chosenBot: BotDefinition | undefined = undefined;
+    showPicker = true;
+    showAbout  = false;
+    showHelp   = false;
+    showRoll   = false;
+}
 
-let chosenBotID: number | undefined = undefined;
-let chosenBot: BotDefinition | undefined = undefined;
-let showPicker = true;
-let showAbout  = false;
-let showHelp   = false;
-let showRoll   = false;
+const S = new AppState(); // Global app state
 
 //-- Actions --
 
-const choiceLeft   = () => { choiceIndex = clamp(choiceIndex - 1, 0, 7); };
-const choiceRight  = () => { choiceIndex = clamp(choiceIndex + 1, 0, 7); };
-const handsizeDown = () => { handSize    = clamp(handSize - 1, 5, 12); };
-const handsizeUp   = () => { handSize    = clamp(handSize + 1, 5, 12); };
+const choiceLeft   = () => { S.choiceIndex = clamp(S.choiceIndex - 1, 0, 7); };
+const choiceRight  = () => { S.choiceIndex = clamp(S.choiceIndex + 1, 0, 7); };
+const handsizeDown = () => { S.handSize    = clamp(S.handSize - 1, 5, 12); };
+const handsizeUp   = () => { S.handSize    = clamp(S.handSize + 1, 5, 12); };
 
-const toggleKnockdown = () => { mode      = mode ? '' : 'knockdown'; };
-const toggleWakeup    = () => { mode      = mode ? '' : 'wakeup'; };
-const toggleHitback   = () => { hitback   = !hitback; };
-const toggleDesperate = () => { desperate = !desperate; };
-const toggleDragon    = () => { mode      = mode ? '' : 'dragon'; };
+const toggleKnockdown = () => { S.mode      = S.mode ? '' : 'knockdown'; };
+const toggleWakeup    = () => { S.mode      = S.mode ? '' : 'wakeup'; };
+const toggleHitback   = () => { S.hitback   = !S.hitback; };
+const toggleDesperate = () => { S.desperate = !S.desperate; };
+const toggleDragon    = () => { S.mode      = S.mode ? '' : 'dragon'; };
 
-const displayAbout    = () => { showAbout  = !showAbout; };
-const displayHelp     = () => { showHelp   = !showHelp; };
-const displayPicker   = () => { showPicker = true; };
+const displayAbout    = () => { S.showAbout  = !S.showAbout; };
+const displayHelp     = () => { S.showHelp   = !S.showHelp; };
+const displayPicker   = () => { S.showPicker = true; };
 const changeCharacter = (data: DOMStringMap) => {
     const chosen = data.char;
     if (chosen) {
-        chosenBotID = parseInt(chosen, 10);
-        chosenBot = BOTS[chosenBotID];
-        showPicker = false;
-        showHelp = true;
+        S.chosenBotID = parseInt(chosen, 10);
+        S.chosenBot = BOTS[S.chosenBotID];
+        S.showPicker = false;
+        S.showHelp = true;
         save();
 
         // Reset match state
-        handSize = 9;
-        choiceIndex = 0;
-        mode = '';
-        hitback = false;
-        desperate = false;
+        S.handSize = 9;
+        S.choiceIndex = 0;
+        S.mode = '';
+        S.hitback = false;
+        S.desperate = false;
     }
 };
 const choiceRandom = () => {
-    choiceIndex = Math.floor(Math.random() * 8);
-    showRoll = true;
+    S.choiceIndex = Math.floor(Math.random() * 8);
+    S.showRoll = true;
     setTimeout(() => {
-        showRoll = false;
+        S.showRoll = false;
         rerender();
     }, 1000);
 };
@@ -83,18 +86,18 @@ const choiceRandom = () => {
 const STORAGE_KEY = 'y2_assist';
 function save() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        chosenBotID
+        chosenBotID: S.chosenBotID
     }));
 }
 function load() {
     const rawData = localStorage.getItem(STORAGE_KEY);
     if (rawData) {
         const data = JSON.parse(rawData);
-        chosenBotID = data.chosenBotID;
+        S.chosenBotID = data.chosenBotID;
 
         // Update derived state
-        chosenBot = BOTS[chosenBotID!];
-        showPicker = !chosenBotID;
+        S.chosenBot = BOTS[S.chosenBotID!];
+        S.showPicker = !S.chosenBotID;
     }
 }
 
@@ -157,6 +160,8 @@ function heightStyle(height: StrikeHeight) {
 }
 
 function renderMove(choice: Choice) {
+    const { showRoll } = S;
+
     if (showRoll) {
         return `<div class="roller"> ? </div>`;
     }
@@ -206,6 +211,8 @@ function renderMove(choice: Choice) {
 }
 
 function getChoiceRow(bot: BotDefinition): ChoiceRow {
+    const { handSize, desperate, mode } = S;
+
     // Default choice
     const rowIndex = Math.floor((handSize - 5) / 2);
     let row: ChoiceRow = bot.normal[rowIndex];
@@ -227,6 +234,8 @@ function getChoiceRow(bot: BotDefinition): ChoiceRow {
     return row;
 }
 function getChoice(bot: BotDefinition): Choice {
+    const { hitback, choiceIndex } = S;
+
     const row = getChoiceRow(bot);
     if (hitback) {
         return row.hitback!;
@@ -236,20 +245,22 @@ function getChoice(bot: BotDefinition): Choice {
 }
 
 function renderContent() {
-    if (showAbout) {
+    if (S.showAbout) {
         return renderAbout();
     }
-    if (showHelp) {
-        return renderHelp();
+    if (S.showHelp) {
+        return renderHelp(S.chosenBot);
     }
-    if (showPicker) {
+    if (S.showPicker) {
         return renderPicker(BOTS);
     } else {
-        return renderBot(chosenBot);
+        return renderBot(S.chosenBot);
     }
 }
 
 function renderBot(bot: BotDefinition | undefined) {
+    const { mode, hitback, choiceIndex, handSize, desperate } = S;
+
     if (!bot) {
         return `
             <div class="header">
@@ -353,7 +364,7 @@ function renderAbout() {
 
 }
 
-function renderHelp() {
+function renderHelp(chosenBot: BotDefinition | undefined) {
     function possibleChoices(bot: BotDefinition): Choice[] {
         // Various helpers to flatten the structure
         function toSingleton(optional: Choice | null | undefined): Choice[] {
